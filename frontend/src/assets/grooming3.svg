@@ -1,0 +1,13 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <rect width="100%" height="100%" fill="#f8f9fa"/>
+  <g transform="translate(300,200)">
+    <circle cx="100" cy="100" r="80" fill="#FFA500" opacity="0.2"/>
+    <path d="M70 80 Q90 60 110 80 T130 100" stroke="#333" fill="none" stroke-width="3"/>
+    <path d="M50 120 Q70 100 90 120 T110 140" stroke="#333" fill="none" stroke-width="3"/>
+    <circle cx="150" cy="70" r="5" fill="#333"/>
+    <path d="M90 160 Q110 140 130 160 T150 180" stroke="#333" fill="none" stroke-width="3"/>
+    <circle cx="70" cy="140" r="15" fill="#FFA500" opacity="0.3"/>
+    <text x="100" y="250" text-anchor="middle" font-family="Arial" font-size="24" fill="#333">Specialized Treatments</text>
+    <text x="100" y="280" text-anchor="middle" font-family="Arial" font-size="16" fill="#666">De-shedding & Skin Therapy</text>
+  </g>
+</svg>

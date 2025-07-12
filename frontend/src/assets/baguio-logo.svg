@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200">
+  <!-- House roof -->
+  <path d="M75,80 L150,40 L225,80 L225,85 L75,85 Z" fill="#5a3921"/>
+  
+  <!-- House chimney -->
+  <rect x="200" y="60" width="15" height="20" fill="#5a3921"/>
+  
+  <!-- Dog silhouette -->
+  <path d="M160,120 C160,110 170,105 180,105 C190,105 195,110 195,120 C195,130 190,140 180,140 C170,140 160,130 160,120 Z" fill="#5a3921"/>
+  <path d="M180,140 L180,170 L190,170 L190,150 L200,150 L200,170 L210,170 L210,140 Z" fill="#5a3921"/>
+  <circle cx="175" cy="115" r="3" fill="#5a3921"/>
+  
+  <!-- Cat silhouette -->
+  <path d="M120,120 C120,110 130,105 140,105 C150,105 155,110 155,120 C155,130 150,140 140,140 C130,140 120,130 120,120 Z" fill="#f8981d"/>
+  <path d="M140,140 L140,170 L130,170 L130,140 Z" fill="#f8981d"/>
+  <path d="M140,150 C150,145 160,150 170,160" fill="none" stroke="#f8981d" stroke-width="3"/>
+  <circle cx="135" cy="115" r="3" fill="#f8981d"/>
+  
+  <!-- Text -->
+  <text x="150" y="190" font-family="Arial" font-weight="bold" font-size="16" text-anchor="middle" fill="#5a3921">PET BOARDING</text>
+  <text x="150" y="170" font-family="Arial" font-weight="bold" font-size="24" text-anchor="middle" fill="#5a3921">BAGUIO</text>
+</svg>

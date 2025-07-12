@@ -1,0 +1,303 @@
+/* Enhanced Booking Details Modal Styling */
+
+/* Modal Overlay - Dimmed background with a smooth fade-in animation */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+    animation: fadeIn 0.3s ease-out;
+    backdrop-filter: blur(3px);
+}
+
+/* Modal Content - Main container with pop-up animation */
+.modal-content {
+    background-color: #fff;
+    width: 80%;
+    max-width: 600px;
+    max-height: 80vh;
+    border-radius: 12px;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.25);
+    overflow-y: auto;
+    animation: popUp 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    position: relative;
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Modal Header */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    background: linear-gradient(135deg, #4a90e2 0%, #5cb7d8 100%);
+    border-radius: 12px 12px 0 0;
+    color: white;
+    position: sticky;
+    top: 0;
+    z-index: 2;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.reference-number {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    margin-top: 0.3rem;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+}
+
+/* Close Button */
+.close-button {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    font-size: 1.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.close-button:hover {
+    background-color: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+}
+
+/* Modal Body */
+.modal-body {
+    padding: 1.5rem 2rem;
+}
+
+/* Status Section */
+.status-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.status-badge {
+    padding: 0.5rem 1rem;
+    border-radius: 2rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.total-amount {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #2c3e50;
+}
+
+.total-amount .icon {
+    color: #4a90e2;
+}
+
+.status-pending {
+    background-color: #ffeeba;
+    color: #856404;
+    border: 1px solid #ffeeba;
+}
+
+.status-confirmed {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #d4edda;
+}
+
+.status-completed {
+    background-color: #c3e6cb;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-cancelled {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f8d7da;
+}
+
+/* Details Section */
+.details-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.detail-group {
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.detail-group:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+}
+
+.detail-group h3 {
+    color: #4a90e2;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    font-weight: 600;
+    border-bottom: 2px solid rgba(74, 144, 226, 0.2);
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.section-icon {
+    color: #4a90e2;
+    font-size: 1.1rem;
+}
+
+.pet-details-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+}
+
+.pet-details-section h4 {
+    color: #5a5a5a;
+    margin-bottom: 1rem;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+/* Detail Rows */
+.detail-row {
+    display: flex;
+    margin-bottom: 0.8rem;
+    align-items: baseline;
+}
+
+.label {
+    width: 100px;
+    font-weight: 600;
+    color: #666;
+    flex-shrink: 0;
+}
+
+.value {
+    flex-grow: 1;
+    color: #333;
+}
+
+/* Notes Section */
+.notes {
+    padding: 1rem;
+    background-color: #fff;
+    border-left: 3px solid #4a90e2;
+    border-radius: 4px;
+    font-style: italic;
+    color: #555;
+    margin-bottom: 1rem;
+}
+
+.admin-notes {
+    border-left-color: #e74c3c;
+}
+
+.detail-group h5 {
+    color: #5a5a5a;
+    font-size: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0.5rem;
+    font-weight: 600;
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes popUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .modal-content {
+        width: 95%;
+        border-radius: 10px;
+    }
+    
+    .modal-header {
+        padding: 1rem 1.5rem;
+    }
+    
+    .modal-body {
+        padding: 1rem 1.5rem;
+    }
+    
+    .detail-row {
+        flex-direction: column;
+    }
+    
+    .label {
+        width: 100%;
+        margin-bottom: 0.3rem;
+    }
+}
+
+/* Scrollbar styling */
+.modal-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 0 12px 12px 0;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+    background: #c1c1c1;
+    border-radius: 20px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+    background: #a1a1a1;
+}

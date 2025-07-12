@@ -1,0 +1,226 @@
+## Baguio Pet Boarding Chatbot Knowledge Base ##
+
+**I. General Information & Introduction**
+
+* **Intent: Greeting / General Inquiry**
+    * **Q:** Hi / Hello / Tell me about your services.
+    * **A:** Hello! Welcome to Baguio Pet Boarding (Marsha's Pet Boarding). We offer a loving and safe environment for your furry friends. We provide services like pet boarding, pet daycare, and grooming. How can I help you today?
+    * **Predictive Prompts:** Would you like to know more about our boarding rooms, daycare, or grooming services?
+
+* **Intent: About Us / Introduction (Part 1)**
+    * **Q:** Tell me more about Baguio Pet Boarding. / Who are you? / What is Baguio Pet Boarding?
+    * **A:** Baguio Pet Boarding, also known as Marsha's Pet Boarding, aims to provide an environment where pets not only stay but feel truly at home. We treat every pet as an extension of our own family, ensuring each one receives the care, love, and attention it deserves. Cuddles and Playtime ahead!
+        Would you like to know more about our story or our team?
+    * **Follow-up (If user says "yes" to more about story/team):**
+        * **A (Story):** Our story began with Mich and her beloved dog, Marsha. Recognizing Mich's special connection with pets, her friends entrusted their companions to her care, leading to our heartfelt pet boarding service.
+        * **A (Team - Part 1):** Our dedicated team of pet sitters includes Mich, Ate Maan, Eloi, and Ralf. Mich leads with her profound passion for animals, while Ate Maan, Eloi, and Ralf bring their unique warmth and expertise.
+            Would you like to hear more about our team or our commitment?
+    * **Follow-up (If user says "yes" to more about team/commitment):**
+        * **A (Team - Part 2):** Together, they form a compassionate team committed to treating your pets with the same love and care as if they were their own. Rest assured, your cherished companions are in good hands!
+        * **A (Commitment/Services - Part 1):** Communication is key for us! We're dedicated to sending regular updates and are always happy to discuss your pets. We offer services such as dog walks and grooming too. Whether it's a leisurely stroll or a pampering session, we've got your furry friend covered.
+            Would you like to know about our community involvement or our booking platform?
+    * **Follow-up (If user says "yes" to community/platform):**
+        * **A (Community):** Beyond caring for your pets, we are committed to giving back to the community. Baguio Pet Boarding actively donates to stray animals, contributing to the welfare of those in need in Baguio City.
+        * **A (Platform):** We created our web-based booking platform to make pet boarding reservations and management easier for both pet owners and our staff.
+            That's a bit about us! Do you have a specific question about our services, prices, or anything else I can help you with?
+
+* **Intent: Establishment Date**
+    * **Q:** When were you established? / How long have you been open?
+    * **A:** Baguio Pet Boarding was established in 2019.
+
+* **Intent: Location / Address**
+    * **Q:** Where are you located? / What is your address?
+    * **A:** We are located at 186 Kennon Road, Camp 7, Baguio City, Philippines, 2600.
+
+* **Intent: Service Area**
+    * **Q:** What areas do you serve?
+    * **A:** Our service area is Baguio City, Philippines.
+
+* **Intent: Operating Hours**
+    * **Q:** What are your hours? / When are you open?
+    * **A:** We are always open, 24/7, to cater to your pet's needs!
+
+* **Intent: Service Category**
+    * **Q:** What kind of business are you?
+    * **A:** We are a pet sitter and offer comprehensive pet boarding, daycare, and grooming services.
+
+* **Intent: Types of Pets Accepted**
+    * **Q:** What types of pets do you accept? / Can I board my [pet type]?
+    * **A:** We welcome many types of pets, including cats, dogs, rabbits, hamsters, birds, turtles, snakes, and even chickens! If you have a different type of pet, feel free to ask.
+
+**II. Services Offered & Features**
+
+* **A. Pet Boarding (Overnight Stays)**
+    * **Intent: General Boarding Inquiry**
+        * **Q:** Tell me about your boarding services. / Do you offer overnight stays?
+        * **A:** Yes, we offer overnight stays with different room options: Deluxe, Premium, and Executive rooms. All our rooms come with a 24/7 Pet Sitter, are well-ventilated, include morning and evening outdoor breaks, beds, food bowls, treats, and real-time updates. For cats, litter boxes and scratch pads are also included. An additional P500 per night room fee applies for a whole night's stay to all room sizes, on top of the room rate. Your pet's size will be measured at our facility to determine the appropriate room rate.
+        * **Predictive Prompts:** Would you like to know the features and prices for a specific room type like Deluxe, Premium, or Executive?
+
+    * **Intent: Deluxe Room Features**
+        * **Q:** What are the features of a Deluxe room?
+        * **A:** Our Deluxe Rooms offer a regular gated room with a 24/7 Pet Sitter, good ventilation, 1 hour of access to the play area daily, morning and evening outdoor breaks, a regular bed, food bowls, and treats. It's suitable for small to medium-sized pets. We also provide real-time updates. For cats, litter boxes and scratch pads are included.
+        * **Predictive Prompts:** Would you like to know the price for a Deluxe room?
+
+    * **Intent: Premium Room Features**
+        * **Q:** What are the features of a Premium room?
+        * **A:** Our Premium Rooms are gated rooms with a 24/7 Pet Sitter, good ventilation, 2 hours of access to our play area daily, morning and evening outdoor breaks, a premium bed, ceramic bowls, and treats. These are good for small to medium-sized pets, and we provide real-time updates. For cats, litter boxes and scratch pads are included.
+        * **Predictive Prompts:** Would you like to know the price for a Premium room?
+
+    * **Intent: Executive Room Features**
+        * **Q:** What are the features of an Executive room?
+        * **A:** Our Executive Rooms are premium full rooms with a 24/7 Pet Sitter, perfect for solo pets or groups. They are well-ventilated with an air purifier, include 2 hours of access to our play area daily, morning and evening outdoor breaks, a premium bed, ceramic bowls, and treats. These rooms are suitable for small to medium-sized pets. You'll receive real-time updates and a free soft copy photo shoot of your pet! For cats, litter boxes and scratch pads are included.
+        * **Predictive Prompts:** Would you like to know the price for an Executive room?
+
+    * **Intent: Pet Sizing for Rooms**
+        * **Q:** How do I know what size room my pet needs?
+        * **A:** Important note: Your pet's size will be measured at our facility to determine the appropriate room rate. You do not need to select a size when booking online. This ensures your pet gets the right accommodation for their comfort and safety.
+
+* **B. Pet Daycare**
+    * **Intent: Daycare Information**
+        * **Q:** Do you offer pet daycare? / Tell me about your daycare service.
+        * **A:** Yes, we offer Pet Daycare! This includes professional pet care during the day with supervised playtime, meals, and rest periods for a minimum of 6 hours.
+        * **Predictive Prompts:** Would you like to know the daycare prices or what happens if you exceed 6 hours?
+
+    * **Intent: Daycare Exceeded Hours**
+        * **Q:** What if I need daycare for more than 6 hours?
+        * **A:** If your pet stays beyond the minimum 6 hours, an additional P80 per hour will be charged.
+
+* **C. Grooming Services**
+    * **Intent: General Grooming Inquiry**
+        * **Q:** Do you offer grooming? / What grooming services do you have?
+        * **A:** Yes, we offer grooming services at Marsha's Tub! We have three types: Premium Grooming, Basic Bath & Dry, and a Special Grooming Package.
+        * **Predictive Prompts:** Would you like to know the features and prices for a specific grooming package?
+
+    * **Intent: Premium Grooming Features**
+        * **Q:** What's included in Premium Grooming?
+        * **A:** Our Premium Grooming service uses St. Roche Premium Products and includes a bath & dry, eye, ear, and teeth cleaning, plus a haircut of your choice (Signature cut, Puppy cut, Summer cut, or Full shave).
+        * **Predictive Prompts:** Would you like to see the prices for Premium Grooming?
+
+    * **Intent: Basic Bath & Dry Features**
+        * **Q:** What's included in a Basic Bath & Dry?
+        * **A:** Our Basic Bath & Dry service uses organic shampoo and conditioner. It also includes a blow-dry, with perfume and powder being optional.
+        * **Predictive Prompts:** Would you like to see the prices for Basic Bath & Dry?
+
+    * **Intent: Special Grooming Package Features**
+        * **Q:** What's included in the Special Grooming Package?
+        * **A:** The Special Grooming Package includes a basic bath and dry, nail trim, face and hair trim, and a paw pad trim.
+        * **Predictive Prompts:** Would you like to see the prices for the Special Grooming Package?
+
+    * **Intent: Dog Walks**
+        * **Q:** Do you offer dog walking?
+        * **A:** Yes, we offer dog walks as part of our services to cater to your pet's needs. Our boarding services include morning and evening outdoor breaks.
+
+**III. Pricing & Calculations**
+
+* **Intent: General Pricing Inquiry / Promotions**
+    * **Q:** How much are your services? / Do you have any promotions?
+    * **A:** We offer promotions such as seasonal discounts and also for special occasions like birthdays! For specific prices on current promotions, or if you have a unique request, it's best to inquire by contacting us via our Facebook page or by calling 0960 260 5983.
+        However, I can give you the standard rates for our rooms, daycare, and grooming. Would you like prices for boarding, daycare, or grooming?
+
+* **Intent: Calculate Price - Deluxe Room**
+    * **Q:** How much is a Deluxe room for a [small/medium/large/extra-large] pet for [X] nights?
+    * **A:** (Chatbot calculates and responds)
+        * For a **Small Pet** in a Deluxe Room: The base rate is P550 per night. With the additional P500 whole night fee, it's P1050 per night. For [X] nights, the total would be (P550 + P500) * [X] nights = P[Total Price].
+        * For a **Medium Pet** in a Deluxe Room: The base rate is P650 per night. With the additional P500 whole night fee, it's P1150 per night. For [X] nights, the total would be (P650 + P500) * [X] nights = P[Total Price].
+        * For a **Large Pet** in a Deluxe Room: The base rate is P750 per night. With the additional P500 whole night fee, it's P1250 per night. For [X] nights, the total would be (P750 + P500) * [X] nights = P[Total Price].
+        * For an **Extra-Large Pet** in a Deluxe Room: The base rate is P1000 per night. With the additional P500 whole night fee, it's P1500 per night. For [X] nights, the total would be (P1000 + P500) * [X] nights = P[Total Price].
+        Please remember your pet's size will be confirmed at our facility.
+
+* **Intent: Calculate Price - Premium Room**
+    * **Q:** How much is a Premium room for a [small/medium/large/extra-large] pet for [X] nights?
+    * **A:** (Chatbot calculates and responds)
+        * For a **Small Pet** in a Premium Room: The base rate is P650 per night. With the additional P500 whole night fee, it's P1150 per night. For [X] nights, the total would be (P650 + P500) * [X] nights = P[Total Price].
+        * For a **Medium Pet** in a Premium Room: The base rate is P800 per night. With the additional P500 whole night fee, it's P1300 per night. For [X] nights, the total would be (P800 + P500) * [X] nights = P[Total Price].
+        * For a **Large Pet** in a Premium Room: The base rate is P1000 per night. With the additional P500 whole night fee, it's P1500 per night. For [X] nights, the total would be (P1000 + P500) * [X] nights = P[Total Price].
+        * For an **Extra-Large Pet** in a Premium Room: The base rate is P1500 per night. With the additional P500 whole night fee, it's P2000 per night. For [X] nights, the total would be (P1500 + P500) * [X] nights = P[Total Price].
+        Please remember your pet's size will be confirmed at our facility.
+
+* **Intent: Calculate Price - Executive Room**
+    * **Q:** How much is an Executive room for a [small/medium/large] pet for [X] nights?
+    * **A:** (Chatbot calculates and responds)
+        * For a **Small Pet** in an Executive Room: The base rate is P850 per night. With the additional P500 whole night fee, it's P1350 per night. For [X] nights, the total would be (P850 + P500) * [X] nights = P[Total Price].
+        * For a **Medium Pet** in an Executive Room: The base rate is P950 per night. With the additional P500 whole night fee, it's P1450 per night. For [X] nights, the total would be (P950 + P500) * [X] nights = P[Total Price].
+        * For a **Large Pet** in an Executive Room: The base rate is P1000 per night. With the additional P500 whole night fee, it's P1500 per night. For [X] nights, the total would be (P1000 + P500) * [X] nights = P[Total Price].
+        (Note: Executive rooms do not list an Extra-Large option in the provided image).
+        Please remember your pet's size will be confirmed at our facility.
+
+* **Intent: Calculate Price - Pet Daycare**
+    * **Q:** How much is pet daycare for a [small/medium/large/extra-large] pet for [Y] hours?
+    * **A:** (Chatbot calculates and responds)
+        * Our daycare is a minimum of 6 hours.
+            * Small Pet: P350 for the first 6 hours.
+            * Medium Pet: P450 for the first 6 hours.
+            * Large Pet: P500 for the first 6 hours.
+            * Extra-Large Pet: P600 for the first 6 hours.
+        * If [Y] hours is more than 6: The additional charge is P80 per hour for each hour over 6.
+            So, for a [Size] pet for [Y] hours, the total would be [Base 6-hour Price for Size] + (([Y] - 6) * P80) = P[Total Price].
+        * If [Y] hours is 6 or less: The price will be the minimum 6-hour rate for your pet's size. For a [Size] pet, that's P[Base 6-hour Price for Size].
+
+* **Intent: Price - Premium Grooming**
+    * **Q:** How much is Premium Grooming for a [toy/small/medium/large/extra large] dog/cat?
+    * **A:** Premium Grooming prices are:
+        * Toy/Small Dog: P750
+        * Medium Dog: P850
+        * Large Dog: P1000
+        * Extra Large Dog: P1500
+        * Cat: P950
+
+* **Intent: Price - Basic Bath & Dry**
+    * **Q:** How much is Basic Bath & Dry for a [toy/small/medium/large/extra large] dog/cat?
+    * **A:** Basic Bath & Dry prices are:
+        * Toy/Small Dog: P350
+        * Medium Dog: P450
+        * Large Dog: P550
+        * Extra Large Dog: P750
+        * Cat: P500
+
+* **Intent: Price - Special Grooming Package**
+    * **Q:** How much is the Special Grooming Package for a [toy/small/medium/large/extra large] dog/cat?
+    * **A:** The Special Grooming Package prices are:
+        * Toy/Small Dog: P550
+        * Medium Dog: P650
+        * Large Dog: P800
+        * Extra Large Dog: P1000
+        * Cat: P700
+
+**IV. Booking and Payment**
+
+* **Intent: How to Book**
+    * **Q:** How do I book? / Can I book online?
+    * **A:** You can book our services through our website! After confirming your booking or appointment details, you will see the total amount.
+
+* **Intent: Payment Process**
+    * **Q:** How do I pay? / What are the payment methods?
+    * **A:** The payment process is done face-to-face at our hotel, Baguio Pet Boarding.
+
+**V. Pet Health and Safety**
+
+* **Intent: Pet Health Disclosure**
+    * **Q:** Does my pet need to be healthy? / What if my pet has allergies?
+    * **A:** Yes, for the safety and comfort of all our guests, kindly inform us before bringing your pet if they have any illness or allergies. Also, please let us know if your pet is vaccinated or not.
+
+* **Intent: Pet ID Requirement**
+    * **Q:** Do I need to bring anything for my pet?
+    * **A:** Yes, a Pet ID needs to be shown by the pet owner to us at the pet hotel before leaving your pet with us.
+
+**VI. Reviews and Ratings**
+
+* **Intent: Leave a Review / See Reviews**
+    * **Q:** How can I leave a review? / Where can I see reviews?
+    * **A:** You can rate our service or leave a review on our Facebook page. You can also see reviews from other pet owners there! Just visit: https://www.facebook.com/BaguioPetBoardingPh/reviews
+
+**VII. Contact and Other Information**
+
+* **Intent: Contact Information**
+    * **Q:** How can I contact you? / What's your phone number?
+    * **A:** You can contact us via our Facebook page (BaguioPetBoardingPh) or by calling us at 0960 260 5983.
+
+* **Intent: Photos and Videos**
+    * **Q:** Where can I see more photos or videos?
+    * **A:** For more photos and videos of our furry guests and facilities, please visit our Facebook and Instagram pages! (If you have the Instagram handle, add it here).
+
+**VIII. Chatbot Scope & Fallback**
+
+* **Intent: Out of Scope Question**
+    * **Q:** (User asks something unrelated to Baguio Pet Boarding services, e.g., "What's the weather like?" or "Can you tell me a joke?")
+    * **A:** I am here to provide information about Baguio Pet Boarding's services, including pet boarding, daycare, grooming, prices, and booking. If you have questions about these topics, I'd be happy to help!
