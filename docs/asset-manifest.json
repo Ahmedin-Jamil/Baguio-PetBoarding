@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/BaguioPetBoarding/static/css/main.ab85c66a.css",
-    "main.js": "/BaguioPetBoarding/static/js/main.88f50c50.js",
+    "main.js": "/BaguioPetBoarding/static/js/main.41717834.js",
     "static/js/206.4c5c159e.chunk.js": "/BaguioPetBoarding/static/js/206.4c5c159e.chunk.js",
     "static/media/4.4.png": "/BaguioPetBoarding/static/media/4.4.39f8f93de9b8582cd6d0.png",
     "static/media/orange2.png": "/BaguioPetBoarding/static/media/orange2.eac17bb5f0362e6e5c6b.png",
@@ -38,6 +38,6 @@
   },
   "entrypoints": [
     "static/css/main.ab85c66a.css",
-    "static/js/main.88f50c50.js"
+    "static/js/main.41717834.js"
   ]
 }
