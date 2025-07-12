@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600" width="800" height="600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f8f8f8"/>
+  
+  <!-- Beagle Body -->
+  <ellipse cx="400" cy="350" rx="180" ry="150" fill="#d8b172"/>
+  
+  <!-- Beagle Head -->
+  <circle cx="250" cy="300" r="100" fill="#d8b172"/>
+  
+  <!-- Ears -->
+  <path d="M180 250 Q 150 180 200 220" fill="#8b5a2b" stroke="#8b5a2b" stroke-width="20"/>
+  <path d="M200 220 Q 230 180 250 240" fill="#8b5a2b" stroke="#8b5a2b" stroke-width="20"/>
+  
+  <!-- Face Details -->
+  <ellipse cx="220" cy="280" rx="15" ry="15" fill="#000"/> <!-- Eye -->
+  <ellipse cx="250" cy="320" rx="25" ry="15" fill="#8b5a2b"/> <!-- Nose -->
+  <path d="M250 320 Q 280 350 250 350" fill="none" stroke="#000" stroke-width="3"/> <!-- Mouth -->
+  
+  <!-- Teal Outfit/Vest -->
+  <path d="M300 300 Q 400 250 500 300 L 520 400 Q 400 450 280 400 Z" fill="#008080" stroke="#006666" stroke-width="5"/>
+  
+  <!-- Collar -->
+  <path d="M240 300 Q 270 320 300 300" fill="none" stroke="#ff6600" stroke-width="8"/>
+  <circle cx="270" cy="310" r="5" fill="#ffcc00"/> <!-- Tag -->
+  
+  <!-- Paws -->
+  <ellipse cx="300" cy="480" rx="30" ry="20" fill="#d8b172"/>
+  <ellipse cx="500" cy="480" rx="30" ry="20" fill="#d8b172"/>
+  
+  <!-- Tail -->
+  <path d="M580 350 Q 620 320 600 280" fill="none" stroke="#d8b172" stroke-width="20" stroke-linecap="round"/>
+</svg>

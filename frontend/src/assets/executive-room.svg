@@ -1,0 +1,47 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f0f0f0"/>
+  
+  <!-- Room outline -->
+  <rect x="50" y="100" width="700" height="400" fill="#ffffff" stroke="#333" stroke-width="2"/>
+  
+  <!-- Large Windows -->
+  <rect x="550" y="120" width="180" height="220" fill="#e6f7ff" stroke="#333" stroke-width="2"/>
+  <line x1="640" y1="120" x2="640" y2="340" stroke="#333" stroke-width="2"/>
+  <line x1="550" y1="230" x2="730" y2="230" stroke="#333" stroke-width="2"/>
+  
+  <!-- Executive King Bed -->
+  <rect x="80" y="250" width="320" height="200" fill="#d4a76a" stroke="#333" stroke-width="2"/>
+  <rect x="80" y="200" width="320" height="50" fill="#b38c5c" stroke="#333" stroke-width="2"/>
+  <rect x="100" y="250" width="280" height="150" fill="#f9e8d0" stroke="#333" stroke-width="1"/>
+  <rect x="100" y="250" width="280" height="30" fill="#e6ccb3" stroke="#333" stroke-width="1"/>
+  
+  <!-- Decorative Pillows -->
+  <ellipse cx="130" cy="230" rx="25" ry="15" fill="#ffffff" stroke="#333" stroke-width="1"/>
+  <ellipse cx="190" cy="230" rx="25" ry="15" fill="#ffffff" stroke="#333" stroke-width="1"/>
+  <ellipse cx="250" cy="230" rx="25" ry="15" fill="#ffffff" stroke="#333" stroke-width="1"/>
+  <ellipse cx="310" cy="230" rx="25" ry="15" fill="#ffffff" stroke="#333" stroke-width="1"/>
+  
+  <!-- Nightstands -->
+  <rect x="430" y="300" width="80" height="150" fill="#8b5a2b" stroke="#333" stroke-width="2"/>
+  <rect x="440" y="310" width="60" height="40" fill="#6b4423" stroke="#333" stroke-width="1"/>
+  
+  <!-- Lamp -->
+  <rect x="455" y="270" width="30" height="30" fill="#f9e8d0" stroke="#333" stroke-width="1"/>
+  <rect x="465" y="240" width="10" height="30" fill="#d4a76a" stroke="#333" stroke-width="1"/>
+  
+  <!-- Premium Pet Bed -->
+  <ellipse cx="550" cy="400" rx="90" ry="50" fill="#e6ccb3" stroke="#333" stroke-width="2"/>
+  <ellipse cx="550" cy="400" rx="70" ry="35" fill="#f9e8d0" stroke="#333" stroke-width="1"/>
+  <ellipse cx="550" cy="400" rx="50" ry="20" fill="#f0d9b5" stroke="#333" stroke-width="1"/>
+  
+  <!-- Seating Area -->
+  <rect x="150" y="120" width="120" height="60" rx="10" ry="10" fill="#b3c6d1" stroke="#333" stroke-width="2"/>
+  <rect x="300" y="120" width="120" height="60" rx="10" ry="10" fill="#b3c6d1" stroke="#333" stroke-width="2"/>
+  <rect x="220" y="150" width="130" height="30" fill="#8b5a2b" stroke="#333" stroke-width="2"/>
+  
+  <!-- Text -->
+  <text x="400" y="80" font-family="Arial" font-size="24" text-anchor="middle" fill="#333">Executive Room</text>
+  <text x="550" y="460" font-family="Arial" font-size="16" text-anchor="middle" fill="#333">Premium Pet Bed</text>
+  <text x="220" y="140" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">Seating Area</text>
+</svg>

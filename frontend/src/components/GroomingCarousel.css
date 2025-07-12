@@ -1,0 +1,52 @@
+.grooming-carousel {
+  border-radius: 15px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.grooming-carousel .carousel-inner {
+  border-radius: 15px;
+}
+
+.grooming-carousel .carousel-item img {
+  height: 400px;
+  object-fit: cover;
+  width: 100%;
+}
+
+.grooming-carousel .carousel-caption {
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 10px;
+  padding: 15px;
+  bottom: 20px;
+}
+
+.grooming-carousel .carousel-caption h3 {
+  margin: 0;
+  font-size: 1.5rem;
+  color: white;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.grooming-carousel .carousel-control-prev,
+.grooming-carousel .carousel-control-next {
+  width: 5%;
+  opacity: 0.7;
+}
+
+.grooming-carousel .carousel-indicators {
+  bottom: 0;
+}
+
+.grooming-carousel .carousel-indicators button {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin: 0 5px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.grooming-carousel .carousel-indicators button.active {
+  background-color: white;
+}
