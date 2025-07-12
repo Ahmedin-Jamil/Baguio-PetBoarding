@@ -1,0 +1,237 @@
+.hero-section {
+  position: relative;
+  background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)), url('../assets/4.4.png');
+  background-size: 100%;
+  background-position: 50% 20.75%;
+  background-repeat: no-repeat;
+  color: white;
+  padding: 100px 0;
+  min-height: 290px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 8px 20px rgb(255, 255, 255);
+}
+
+/* Mobile-specific styles to ensure only one image appears */
+@media (max-width: 768px) {
+  .hero-section {
+    background-size: cover;
+    background-position: center;
+    min-height: 400px;
+    padding: 60px 0;
+  }
+  
+  .hero-title {
+    font-size: 2rem;
+  }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 10;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hero-title {
+  font-size: 3rem;
+  font-weight: 700;
+  margin-bottom: 1.5rem;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.hero-subtitle {
+  font-size: 1.2rem;
+  margin-bottom: 2rem;
+  max-width: 600px;
+}
+
+
+
+.section-title {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+  font-weight: 800;
+  color: #FF8C00;
+  font-size: 2.5rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+  display: inline-block;
+  padding: 0.5rem 2rem;
+  background-color: rgba(255, 255, 255, 0.953);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.title-underline {
+  display: block;
+  width: 120px;
+  height: 4px;
+  background-color: #FF8C00;
+  margin: 1rem auto;
+  border-radius: 2px;
+  box-shadow: 0 2px 4px rgba(255, 140, 0, 0.2);
+}
+
+.services-section {
+  padding: 50px 0;
+  background-image: url('../assets/orange2.png');
+  background-size: 600px;
+}
+
+.services-container {
+  display: flex;
+  flex-direction: column;
+  max-width: 1000px;
+  margin: 0 auto;
+  
+}
+
+.service-item {
+  margin-bottom: 30px;
+}
+
+.about-section {
+  padding: 80px 0;
+
+  background-size: 200px;
+  background-repeat: no-repeat;
+  background-color: #ffffff;
+  
+
+}
+
+.about-content {
+  max-width: 600px;
+}
+
+.about-image {
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.location-section {
+  padding: 80px 0;
+}
+
+.map-container {
+  height: 450px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  position: relative;
+}
+
+.map-overlay {
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.map-container:hover .map-overlay {
+  opacity: 1;
+}
+
+.map-btn {
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-weight: 500;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.info-card {
+  background-color: white;
+  padding: 30px;
+  border-radius: 10px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  height: 100%;
+}
+
+.info-card h3 {
+  color: #FF8C00;
+  margin-bottom: 1.5rem;
+}
+
+.contact-item {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+}
+
+.contact-icon {
+  color: #FF8C00;
+  margin-right: 15px;
+  min-width: 24px;
+  margin-top: 3px;
+}
+
+.contact-info {
+  flex: 1;
+}
+
+.contact-info h5 {
+  margin-bottom: 5px;
+  font-size: 1rem;
+}
+
+.contact-info p {
+  margin: 0;
+  color: #666;
+}
+
+.btn-orange {
+  background-color: #FF8C00 !important;
+  border: none !important;
+  color: white !important;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.3s;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-orange:hover {
+  background-color: #e67e00 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.2);
+}
+
+.testimonial-section {
+  padding: 80px 0;
+  background-color: #f8f9fa;
+}
+
+@media (max-width: 991px) {
+  .booking-widget-container {
+    margin-top: 40px;
+  }
+}
+
+@media (max-width: 767px) {
+  .hero-section {
+    padding: 60px 0;
+    min-height: 500px;
+  }
+  
+  .hero-title {
+    font-size: 2rem;
+  }
+  
+  .booking-widget-container {
+    margin-top: 20px;
+  }
+}

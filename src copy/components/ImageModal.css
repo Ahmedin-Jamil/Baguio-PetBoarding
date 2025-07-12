@@ -1,0 +1,38 @@
+.image-modal .modal-dialog {
+  max-width: 90vw;
+  margin: 1.75rem auto;
+}
+
+.image-modal .modal-content {
+  background-color: transparent;
+  border: none;
+}
+
+.image-modal .modal-header {
+  background-color: rgba(255, 255, 255, 0.7);
+  color: white;
+  border-bottom: none;
+  border-radius: 0;
+}
+
+.image-modal .modal-body {
+  background-color: rgba(255, 255, 255, 0.7);
+}
+
+.image-modal .close {
+  color: white;
+  opacity: 0.8;
+}
+
+.image-modal .close:hover {
+  color: white;
+  opacity: 1;
+}
+
+.image-modal img {
+  object-fit: contain;
+  max-height: 80vh;
+  width: auto;
+  margin: 0 auto;
+  display: block;
+}
