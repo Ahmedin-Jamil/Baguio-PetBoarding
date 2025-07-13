@@ -1,0 +1,22 @@
+/* ModernEffects.css */
+/* Basic transitions without animations or 3D effects */
+
+/* Basic transitions */
+.nav-link, .btn {
+  transition: all 0.3s ease;
+}
+
+/* Simple hover effects without motion */
+.card:hover {
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+/* Button hover effect without glow */
+.btn:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Service card hover without scale effect */
+.service-card:hover {
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
