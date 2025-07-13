@@ -27,7 +27,7 @@ async function validateResetToken(token) {
     const [results] = await pool.query(
       'SELECT * FROM password_reset_tokens ' +
       'JOIN users ON password_reset_tokens.user_id = users.user_id ' +
-      'WHERE token = ? AND expires_at > NOW()',
+      'WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP',
       [token]);
 
     if (results.length === 0) {
@@ -53,15 +53,13 @@ async function validateResetToken(token) {
  * @returns {Promise<Object>} Reset token data
  */
 async function createPasswordResetToken(email, metadata = {}) {
-  const connection = await pool.getConnection();
-  
   try {
     // Start transaction
-    await connection.beginTransaction();
+    await pool.query('BEGIN');
     
     // Find user by email using a prepared statement to prevent SQL injection
-    const [users] = await connection.query(
-      'SELECT user_id, first_name, last_name FROM users WHERE email = ?',
+    const { rows: users } = await pool.query(
+      'SELECT user_id, first_name, last_name FROM users WHERE email = $1',
       [email]
     );
     
@@ -78,19 +76,19 @@ async function createPasswordResetToken(email, metadata = {}) {
     const expiresAt = new Date(Date.now() + 3600000); // 1 hour from now
     
     // Delete any existing reset tokens for this user
-    await connection.query(
-      'DELETE FROM password_reset_tokens WHERE user_id = ?',
+    await pool.query(
+      'DELETE FROM password_reset_tokens WHERE user_id = $1',
       [user.id]
     );
     
     // Create new reset token with IP address and user agent for security audit
-    await connection.query(
-      'INSERT INTO password_reset_tokens (user_id, token, expires_at, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)',
+    await pool.query(
+      'INSERT INTO password_reset_tokens (user_id, token, expires_at, ip_address, user_agent) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [user.id, token, expiresAt, metadata.ipAddress || null, metadata.userAgent || null]
     );
     
     // Commit transaction
-    await connection.commit();
+    await pool.query('COMMIT');
     
     // Return token info
     return {
@@ -103,7 +101,7 @@ async function createPasswordResetToken(email, metadata = {}) {
     };
   } catch (error) {
     // If an error occurred, rollback the transaction
-    await connection.rollback();
+    await pool.query('ROLLBACK');
     console.error('Error creating password reset token:', error);
     throw error;
   } finally {
@@ -174,16 +172,14 @@ async function sendPasswordResetEmail(data) {
  * @returns {Promise<Object>} Result
  */
 async function resetPassword(token, newPassword, metadata = {}) {
-  const connection = await pool.getConnection();
-  
   try {
     // Start transaction
-    await connection.beginTransaction();
+    await pool.query('BEGIN');
     
     // Validate reset token and get user - using prepared statement for security
-    const [tokens] = await connection.query(
+    const { rows: tokens } = await pool.query(
       'SELECT * FROM password_reset_tokens ' +
-      'WHERE token = ? AND expires_at > NOW()',
+      'WHERE token = $1 AND expires_at > CURRENT_TIMESTAMP',
       [token]
     );
     
@@ -197,30 +193,30 @@ async function resetPassword(token, newPassword, metadata = {}) {
     const hashedPassword = await bcrypt.hash(newPassword, 12);
     
     // Update user password and record the update time
-    await connection.query(
-      'UPDATE users SET password = ?, updated_at = NOW() WHERE id = ?',
+    await pool.query(
+      'UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE id = $2',
       [hashedPassword, userId]
     );
     
     // Log the password reset with enhanced security tracking
-    await connection.query(
-      'INSERT INTO audit_log (user_id, action, description, ip_address, user_agent) VALUES (?, ?, ?, ?, ?)',
+    await pool.query(
+      'INSERT INTO audit_log (user_id, action, description, ip_address, user_agent) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [userId, 'password_reset', 'Password reset with token', metadata.ipAddress || null, metadata.userAgent || null]
     );
     
     // Delete used token
-    await connection.query(
-      'DELETE FROM password_reset_tokens WHERE token = ?',
+    await pool.query(
+      'DELETE FROM password_reset_tokens WHERE token = $1',
       [token]
     );
     
     // Commit transaction
-    await connection.commit();
+    await pool.query('COMMIT');
     
     return { success: true };
   } catch (error) {
     // If an error occurred, rollback the transaction
-    await connection.rollback();
+    await pool.query('ROLLBACK');
     console.error('Error resetting password:', error);
     throw error;
   } finally {

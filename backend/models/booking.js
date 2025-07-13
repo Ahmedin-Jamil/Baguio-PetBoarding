@@ -365,8 +365,7 @@ async function createBooking(bookingData) {
       grooming_type   : bookingData.grooming_type || null
     };
 
-    const connection = await pool.getConnection();
-    await connection.beginTransaction();
+    await pool.query('BEGIN');
 
     try {
       // Generate a simple reference number: BPB<YYMMDDHHMMSS><3-digit random>
@@ -374,7 +373,7 @@ async function createBooking(bookingData) {
       const refBase = now.toISOString().replace(/[-T:Z.]/g,'').slice(2,14); // YYMMDDHHMMSS
       const referenceNumber = `BPB${refBase}${Math.floor(Math.random()*900+100)}`;
 
-      const [result] = await connection.query(
+      const { rows: [result] } = await pool.query(
         `INSERT INTO bookings (
           reference_number, owner_first_name, owner_last_name, owner_email, owner_phone, owner_address,
           pet_name, pet_type, breed, gender, date_of_birth, weight_category,
@@ -389,15 +388,13 @@ async function createBooking(bookingData) {
           data.start_time, data.end_time, data.total_amount, data.special_requests, data.grooming_type]
       );
 
-      const bookingId = result.insertId;
-      await connection.commit();
-      connection.release();
+      const bookingId = result.id;
+      await pool.query('COMMIT');
 
       // Return full record
       return await getBookingById(bookingId);
     } catch (err) {
-      await connection.rollback();
-      connection.release();
+      await pool.query('ROLLBACK');
       throw err;
     }
   } catch (error) {
@@ -406,8 +403,7 @@ async function createBooking(bookingData) {
   }
 }
   try {
-    const connection = await pool.getConnection();
-    await connection.beginTransaction();
+    await pool.query('BEGIN');
 
     try {
       const {
@@ -428,8 +424,8 @@ async function createBooking(bookingData) {
 const guestLastName  = guest_user.last_name  || guest_user.lastName  || '';
 const guestAddress   = guest_user.address    || guest_user.addressLine || '';
 
-const [userResult] = await connection.query(
-        'INSERT INTO users (first_name, last_name, email, phone, address, is_guest) VALUES (?, ?, ?, ?, ?, true)',
+const { rows: [userResult] } = await pool.query(
+        'INSERT INTO users (first_name, last_name, email, phone, address, is_guest) VALUES ($1, $2, $3, $4, $5, true) RETURNING *',
         [
           guestFirstName,
           guestLastName,
@@ -438,11 +434,11 @@ const [userResult] = await connection.query(
           guestAddress
         ]
       );
-      const userId = userResult.insertId;
+      const userId = userResult.id;
 
       // Insert guest pet
-      const [petResult] = await connection.query(
-        'INSERT INTO pets (user_id, pet_name, pet_type, breed, gender, date_of_birth, weight) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      const { rows: [petResult] } = await pool.query(
+        'INSERT INTO pets (user_id, pet_name, pet_type, breed, gender, date_of_birth, weight) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
         [
           userId,
           guest_pet.name,
@@ -453,11 +449,11 @@ const [userResult] = await connection.query(
           guest_pet.weight || 0
         ]
       );
-      const petId = petResult.insertId;
+      const petId = petResult.id;
 
       // Create the booking
-      const [bookingResult] = await connection.query(
-        'INSERT INTO bookings (user_id, pet_id, service_id, start_date, end_date, start_time, end_time, weight_category, total_amount, special_requests, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+      const { rows: [bookingResult] } = await pool.query(
+        'INSERT INTO bookings (user_id, pet_id, service_id, start_date, end_date, start_time, end_time, weight_category, total_amount, special_requests, status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING *',
         [
           userId,
           petId,
@@ -473,11 +469,10 @@ const [userResult] = await connection.query(
         ]
       );
       
-      const bookingId = bookingResult.insertId;
+      const bookingId = bookingResult.id;
       
       // Commit the transaction first
-      await connection.commit();
-      connection.release();
+      await pool.query('COMMIT');
 
       // Retrieve full booking details (including joined user & pet info)
       const fullResult = await getBookingById(bookingId);
@@ -512,7 +507,7 @@ const [userResult] = await connection.query(
       };
     } catch (error) {
       // Rollback transaction on error
-      await connection.rollback();
+      await pool.query('ROLLBACK');
       connection.release();
       throw error;
     }

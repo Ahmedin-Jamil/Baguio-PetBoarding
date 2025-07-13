@@ -4,19 +4,21 @@
 ALTER TABLE bookings ADD COLUMN reference_number VARCHAR(20) UNIQUE;
 
 -- Update existing bookings with reference numbers
-UPDATE bookings SET reference_number = CONCAT('BPB', LPAD(booking_id, 4, '0'));
+UPDATE bookings SET reference_number = 'BPB' || LPAD(booking_id::text, 4, '0');
 
 -- Create trigger to auto-generate reference numbers for new bookings
-DELIMITER //
+CREATE OR REPLACE FUNCTION generate_booking_reference()
+RETURNS TRIGGER AS $$
+BEGIN
+    NEW.reference_number := 'BPB' || LPAD(currval(pg_get_serial_sequence('bookings', 'booking_id'))::text, 4, '0');
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER before_booking_insert
-BEFORE INSERT ON bookings
-FOR EACH ROW
-BEGIN
-    SET NEW.reference_number = CONCAT('BPB', LPAD(LAST_INSERT_ID() + 1, 4, '0'));
-END//
-
-DELIMITER ;
+    BEFORE INSERT ON bookings
+    FOR EACH ROW
+    EXECUTE FUNCTION generate_booking_reference();
 
 -- Create migration log entry
 INSERT INTO migration_log (migration_name, notes) 

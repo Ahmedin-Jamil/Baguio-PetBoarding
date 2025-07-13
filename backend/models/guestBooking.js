@@ -9,9 +9,8 @@ const pool = require('../config/database');
  * Create a new guest booking
  */
 async function createGuestBooking(bookingData) {
-  const connection = await pool.getConnection();
   try {
-    await connection.beginTransaction();
+    await pool.query('BEGIN');
 
     const {
       ownerName,
@@ -55,7 +54,7 @@ async function createGuestBooking(bookingData) {
     }
 
     // Insert booking directly with guest information
-    const [booking] = await connection.query(`
+    const { rows: [booking] } = await pool.query(`
       INSERT INTO bookings (
         owner_name,
         owner_email,
@@ -92,17 +91,15 @@ async function createGuestBooking(bookingData) {
       weightCategory
     ]);
 
-    await connection.commit();
+    await pool.query('COMMIT');
     return {
       success: true,
-      bookingId: booking.insertId,
-      referenceNumber: `BPB${booking.insertId.toString(36).toUpperCase()}`
+      bookingId: booking.id,
+      referenceNumber: `BPB${booking.id.toString(36).toUpperCase()}`
     };
   } catch (error) {
-    await connection.rollback();
+    await pool.query('ROLLBACK');
     throw error;
-  } finally {
-    connection.release();
   }
 }
 

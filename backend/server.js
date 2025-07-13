@@ -22,9 +22,9 @@ const authRoutes = require('./routes/auth');
 
 // Database configuration
 // Import database connection
-const { pool } = require('./db');
+const { pool } = require('./config/db');
 
-console.log('Using Supabase PostgreSQL database connection from db.js...');
+console.log('Using Supabase PostgreSQL database connection...');
 
 // Import services
 const petApiService = require('./pet_api_service');
@@ -744,23 +744,18 @@ app.get('/api/check-availability', async (req, res) => {
       });
     }
     
-    const connection = await pool.getConnection();
-    try {
-      // Call the IsRoomAvailable function we created
-      const [result] = await connection.query(
-        'SELECT IsRoomAvailable(?, ?, ?) AS is_available', 
-        [roomType, startDate, endDate]
-      );
-      
-      res.json({ 
-        roomType, 
-        startDate, 
-        endDate, 
-        isAvailable: result[0].is_available === 1 
-      });
-    } finally {
-      connection.release();
-    }
+    // Call the IsRoomAvailable function we created
+    const { rows: [result] } = await pool.query(
+      'SELECT IsRoomAvailable($1, $2, $3) AS is_available', 
+      [roomType, startDate, endDate]
+    );
+    
+    res.json({ 
+      roomType, 
+      startDate, 
+      endDate, 
+      isAvailable: result.is_available 
+    });
   } catch (error) {
     console.error('Error checking room availability:', error);
     res.status(500).json({ 

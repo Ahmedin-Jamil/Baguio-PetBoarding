@@ -290,7 +290,7 @@ router.get('/customers', verifyToken, isAdmin, async (req, res) => {
         COUNT(b.user_id) as booking_count
 
         MAX(b.booking_date) as last_booking_date,
-        GROUP_CONCAT(DISTINCT p.pet_name ORDER BY p.pet_name SEPARATOR ', ') as pet_names
+        STRING_AGG(DISTINCT p.pet_name, ', ' ORDER BY p.pet_name) as pet_names
       FROM users u
       LEFT JOIN bookings b ON u.user_id = b.user_id
       LEFT JOIN pets p ON b.pet_id = p.pet_id
@@ -304,7 +304,7 @@ router.get('/customers', verifyToken, isAdmin, async (req, res) => {
     const [newCustomers] = await pool.query(`
       SELECT COUNT(DISTINCT u.user_id) as new_customer_count
       FROM users u
-      WHERE u.role = 'customer' AND u.created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+      WHERE u.role = 'customer' AND u.created_at >= CURRENT_TIMESTAMP - INTERVAL '30 days'
     `);
     
     // Get repeat customer percentage

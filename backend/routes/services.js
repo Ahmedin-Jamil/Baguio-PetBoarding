@@ -72,7 +72,7 @@ router.get('/availability/:date', validateParams(schemas.dateParam), async (req,
           service_id,
           COUNT(*) as booked_count
         FROM bookings 
-        WHERE ? BETWEEN start_date AND end_date 
+        WHERE $1 BETWEEN start_date AND end_date 
         AND status IN ('pending', 'confirmed')
         GROUP BY service_id
       ) active_bookings ON s.service_id = active_bookings.service_id
@@ -107,15 +107,15 @@ router.get('/calendar-availability/:date', validateParams(schemas.dateParam), as
         reason,
         notes
       FROM calendar_availability 
-      WHERE date = ?
+      WHERE date = $1
       UNION ALL
       SELECT 
-        ? as date,
+        $2 as date,
         TRUE as is_available,
         NULL as reason,
         NULL as notes
       WHERE NOT EXISTS (
-        SELECT 1 FROM calendar_availability WHERE date = ?
+        SELECT 1 FROM calendar_availability WHERE date = $3
       )
     `, [date, date, date]);
     
@@ -157,7 +157,7 @@ router.get('/calendar-availability', validateQuery(schemas.dateRange), async (re
         reason,
         notes
       FROM calendar_availability
-      WHERE date BETWEEN ? AND ?
+      WHERE date BETWEEN $1 AND $2
       ORDER BY date
     `, [startDate, endDate]);
     

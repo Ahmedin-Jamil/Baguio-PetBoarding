@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
       'INSERT INTO users (first_name, last_name, email, phone, address) VALUES (?, ?, ?, ?, ?)',
       [first_name, last_name, email, phone, address || null]
     );
-    return res.json({ id: result.insertId, first_name, last_name, email, phone, address });
+    return res.json({ id: result.id, first_name, last_name, email, phone, address });
   } catch (err) {
     console.error('User creation error:', err);
     res.status(500).json({

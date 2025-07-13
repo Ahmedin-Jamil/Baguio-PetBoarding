@@ -160,8 +160,7 @@ async function createBooking(bookingData) {
       grooming_type   : bookingData.grooming_type || null
     };
 
-    const connection = await pool.getConnection();
-    await connection.beginTransaction();
+    await pool.query('BEGIN');
 
     try {
       // Generate reference number e.g. BPB250709103045321
@@ -169,7 +168,7 @@ async function createBooking(bookingData) {
       const refBase          = now.toISOString().replace(/[-T:Z.]/g,'').slice(2,14);
       const referenceNumber  = `BPB${refBase}${Math.floor(Math.random()*900+100)}`;
 
-      const [result] = await connection.query(
+      const { rows: [result] } = await pool.query(
         `INSERT INTO bookings (
           reference_number, owner_first_name, owner_last_name, owner_email, owner_phone, owner_address,
           pet_name, pet_type, breed, gender, date_of_birth, weight_category,
@@ -184,14 +183,12 @@ async function createBooking(bookingData) {
           data.start_time, data.end_time, data.total_amount, data.special_requests, data.grooming_type]
       );
 
-      const bookingId = result.insertId;
-      await connection.commit();
-      connection.release();
+      const bookingId = result.id;
+      await pool.query('COMMIT');
 
       return await getBookingById(bookingId);
     } catch (err) {
-      await connection.rollback();
-      connection.release();
+      await pool.query('ROLLBACK');
       throw err;
     }
   } catch (error) {

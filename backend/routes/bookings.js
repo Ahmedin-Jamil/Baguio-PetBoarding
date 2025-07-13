@@ -266,16 +266,16 @@ router.get('/', async (req, res) => {
     let query = `
       SELECT 
         b.booking_id,
-        COALESCE(b.reference_number, CONCAT('BPB', DATE_FORMAT(b.created_at, '%y%m%d'), LPAD(b.booking_id, 4, '0'))) as reference_number,
-        DATE_FORMAT(b.start_date, '%Y-%m-%d') as start_date,
-        DATE_FORMAT(b.end_date, '%Y-%m-%d') as end_date,
+        COALESCE(b.reference_number, 'BPB' || TO_CHAR(b.created_at, 'YYMMDD') || LPAD(b.booking_id::text, 4, '0')) as reference_number,
+        TO_CHAR(b.start_date, 'YYYY-MM-DD') as start_date,
+        TO_CHAR(b.end_date, 'YYYY-MM-DD') as end_date,
         b.start_time,
         b.end_time,
         b.status,
         b.special_requests,
         b.admin_notes,
         b.room_type,
-        DATE_FORMAT(b.created_at, '%Y-%m-%d %H:%i:%s') as created_at,
+        TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
         b.owner_first_name as customer_first_name,
         b.owner_last_name as customer_last_name,
         b.owner_email as customer_email,
@@ -328,9 +328,9 @@ router.get('/pending', async (req, res) => {
     const [bookings] = await pool.query(`
       SELECT 
         b.booking_id,
-        COALESCE(b.reference_number, CONCAT('BPB', DATE_FORMAT(b.created_at, '%y%m%d'), LPAD(b.booking_id, 4, '0'))) as reference_number,
-        DATE_FORMAT(b.start_date, '%Y-%m-%d') as start_date,
-        DATE_FORMAT(b.end_date, '%Y-%m-%d') as end_date,
+        COALESCE(b.reference_number, 'BPB' || TO_CHAR(b.created_at, 'YYMMDD') || LPAD(b.booking_id::text, 4, '0')) as reference_number,
+        TO_CHAR(b.start_date, 'YYYY-MM-DD') as start_date,
+        TO_CHAR(b.end_date, 'YYYY-MM-DD') as end_date,
         b.start_time,
         b.end_time,
         b.status,
@@ -338,7 +338,7 @@ router.get('/pending', async (req, res) => {
         b.special_requests,
         b.room_type,
 
-        DATE_FORMAT(b.created_at, '%Y-%m-%d %H:%i:%s') as created_at,
+        TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
         b.owner_first_name as first_name,
         b.owner_last_name as last_name,
         b.owner_email as email,
@@ -393,9 +393,9 @@ router.get('/search', async (req, res) => {
     let query = `
       SELECT 
         b.booking_id,
-        COALESCE(b.reference_number, CONCAT('BPB', DATE_FORMAT(b.created_at, '%y%m%d'), LPAD(b.booking_id, 4, '0'))) as reference_number,
-        DATE_FORMAT(b.start_date, '%Y-%m-%d') as start_date,
-        DATE_FORMAT(b.end_date, '%Y-%m-%d') as end_date,
+        COALESCE(b.reference_number, 'BPB' || TO_CHAR(b.created_at, 'YYMMDD') || LPAD(b.booking_id::text, 4, '0')) as reference_number,
+        TO_CHAR(b.start_date, 'YYYY-MM-DD') as start_date,
+        TO_CHAR(b.end_date, 'YYYY-MM-DD') as end_date,
         b.start_time,
         b.end_time,
         b.status,
@@ -403,7 +403,7 @@ router.get('/search', async (req, res) => {
         b.special_requests,
         b.room_type,
 
-        DATE_FORMAT(b.created_at, '%Y-%m-%d %H:%i:%s') as created_at,
+        TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
         b.owner_first_name as first_name,
         b.owner_last_name as last_name,
         b.owner_email as email,
@@ -436,7 +436,7 @@ router.get('/search', async (req, res) => {
       const cleanRef = reference_number.replace(/^#/, '').toUpperCase();
       // Allow matching multiple related bookings created in the same transaction (same prefix, last 4 digits differ)
       const refPrefix = cleanRef.length > 4 ? cleanRef.slice(0, -4) : cleanRef;
-      query += '((b.reference_number = ?) OR (b.reference_number LIKE ?) OR (CONCAT(\'BPB\', DATE_FORMAT(b.created_at, \'%y%m%d\'), LPAD(b.booking_id, 4, \'0\')) = ?) )';
+      query += '((b.reference_number = $1) OR (b.reference_number LIKE $2) OR (\'BPB\' || TO_CHAR(b.created_at, \'YYMMDD\') || LPAD(b.booking_id::text, 4, \'0\') = $3) )';
       params.push(cleanRef, `${refPrefix}%`, cleanRef);
     }
     
@@ -472,7 +472,6 @@ router.get('/search', async (req, res) => {
 // Create a new booking (public endpoint)
 // Legacy route retained for reference but now mounted under /legacy to avoid duplication
 router.post('/legacy', async (req, res) => {
-  const connection = await pool.getConnection();
   console.log('Incoming booking payload:', JSON.stringify(req.body, null, 2));
 
   // Validate booking data
@@ -513,7 +512,7 @@ router.post('/legacy', async (req, res) => {
   }
 
   try {
-    await connection.beginTransaction();
+    await pool.query('BEGIN');
 
     const {
       ownerName,
@@ -572,7 +571,7 @@ router.post('/legacy', async (req, res) => {
     // For non-daycare services, validate room type
     if (!isDaycareBooking && (!finalRoomTypeRaw || 
         !['deluxe room', 'premium room', 'executive room'].includes(finalRoomTypeRaw.toLowerCase()))) {
-      await connection.rollback();
+      await pool.query('ROLLBACK');
       return res.status(400).json({ 
         success: false, 
         message: 'Invalid or missing room type. Must be one of: Deluxe Room, Premium Room, Executive Room.' 
@@ -586,7 +585,7 @@ router.post('/legacy', async (req, res) => {
     let finalPetId = pet_id || petIdCamel;
 
     if (!finalServiceId || !finalBookingDate) {
-      await connection.rollback();
+      await pool.query('ROLLBACK');
       return res.status(400).json({
         success: false,
         message: 'Missing required booking information: serviceId and bookingDate are required.'
@@ -621,16 +620,16 @@ router.post('/legacy', async (req, res) => {
     
     // Handle guest user creation if no user_id is provided
     if (!finalUserId) {
-      const [existingUser] = await connection.query('SELECT user_id FROM users WHERE email = ?', [ownerEmailFinal]);
+      const { rows: [existingUser] } = await pool.query('SELECT user_id FROM users WHERE email = $1', [ownerEmailFinal]);
       if (existingUser.length > 0) {
         finalUserId = existingUser[0].user_id;
       } else if (ownerEmailFinal) {
         // Only create a user if we have an email
-        const [newUser] = await connection.query(
-          'INSERT INTO users (first_name, last_name, email, phone, address) VALUES (?, ?, ?, ?, ?)',
+        const { rows: [newUser] } = await pool.query(
+          'INSERT INTO users (first_name, last_name, email, phone, address) VALUES ($1, $2, $3, $4, $5) RETURNING *',
           [guestFirstName, guestLastName, ownerEmailFinal, ownerPhoneFinal || null, ownerAddressFinal]
         );
-        finalUserId = newUser.insertId;
+        finalUserId = newUser.id;
       }
     }
 
@@ -697,15 +696,15 @@ router.post('/legacy', async (req, res) => {
 
         console.log('Using normalized gender:', normalizedGender);
 
-        const [newPet] = await connection.query(
-          'INSERT INTO pets (user_id, pet_name, pet_type, breed, gender) VALUES (?, ?, ?, ?, ?)',
+        const { rows: [newPet] } = await pool.query(
+          'INSERT INTO pets (user_id, pet_name, pet_type, breed, gender) VALUES ($1, $2, $3, $4, $5) RETURNING *',
           [finalUserId, petNameFinal, normalizedPetType, petBreedFinal, normalizedGender]
         );
-        finalPetId = newPet.insertId;
+        finalPetId = newPet.id;
         console.log(`Created new pet with ID: ${finalPetId}`);
       } catch (petError) {
         console.error('Error creating pet:', petError);
-        await connection.rollback();
+        await pool.query('ROLLBACK');
         return res.status(500).json({
           success: false,
           message: 'Failed to create pet record',
@@ -741,7 +740,7 @@ router.post('/legacy', async (req, res) => {
       }
     } catch (err) {
       console.error('Error parsing dates:', err);
-      await connection.rollback();
+      await pool.query('ROLLBACK');
       return res.status(400).json({
         success: false,
         message: 'Invalid date format. Please provide dates in YYYY-MM-DD format.'
@@ -777,7 +776,7 @@ router.post('/legacy', async (req, res) => {
     }
     
 
-    const [newBooking] = await connection.query(
+    const { rows: [newBooking] } = await pool.query(
       `INSERT INTO bookings (
         user_id, pet_id, service_id, start_date, end_date, 
         start_time, end_time, special_requests, status, room_type,
@@ -813,7 +812,7 @@ router.post('/legacy', async (req, res) => {
     
     // Use timestamp (last 5 digits) and booking ID for guaranteed uniqueness
     const timestamp = Date.now().toString().slice(-5);
-    const referenceNumber = `BPB${dateStr}${timestamp}${String(newBooking.insertId).padStart(4, '0')}`;
+    const referenceNumber = `BPB${dateStr}${timestamp}${String(newBooking.id).padStart(4, '0')}`;
     
     // Define a variable to hold the reference number (whether it's stored in DB or not)
     let finalReferenceNumber = referenceNumber;
@@ -821,15 +820,15 @@ router.post('/legacy', async (req, res) => {
     // Check if reference_number column exists in the database
     try {
       // Try to update with reference number if the column exists
-      await connection.query(
-        'UPDATE bookings SET reference_number = ? WHERE booking_id = ?',
-        [referenceNumber, newBooking.insertId]
+      await pool.query(
+        'UPDATE bookings SET reference_number = $1 WHERE booking_id = $2',
+        [referenceNumber, newBooking.id]
       );
       
-      console.log(`Generated reference number: ${referenceNumber} for booking ID: ${newBooking.insertId}`);
+      console.log(`Generated reference number: ${referenceNumber} for booking ID: ${newBooking.id}`);
     } catch (refError) {
       // If column doesn't exist, just log and continue
-      if (refError.code === 'ER_BAD_FIELD_ERROR') {
+      if (refError.code === '42703') { // PostgreSQL undefined_column error
         console.log('Reference number column does not exist. Skipping reference number generation.');
       } else {
         // If it's another error, log it but don't fail the booking
@@ -837,12 +836,12 @@ router.post('/legacy', async (req, res) => {
       }
     }
 
-    await connection.commit();
+    await pool.query('COMMIT');
 
     // Fetch details for email confirmation
-    const [userData] = await connection.query('SELECT * FROM users WHERE user_id = ?', [finalUserId]);
-    const [petData] = await connection.query('SELECT * FROM pets WHERE pet_id = ?', [finalPetId]);
-    const [serviceData] = await connection.query('SELECT service_name FROM services WHERE service_id = ?', [finalServiceId]);
+    const { rows: [userData] } = await pool.query('SELECT * FROM users WHERE user_id = $1', [finalUserId]);
+    const { rows: [petData] } = await pool.query('SELECT * FROM pets WHERE pet_id = $1', [finalPetId]);
+    const { rows: [serviceData] } = await pool.query('SELECT service_name FROM services WHERE service_id = $1', [finalServiceId]);
 
     try {
       await emailService.sendBookingConfirmation({
@@ -854,7 +853,7 @@ router.post('/legacy', async (req, res) => {
 
         specialRequests: finalSpecialRequests,
         serviceName: serviceData[0]?.service_name || 'Pet Service',
-        bookingId: newBooking.insertId,
+        bookingId: newBooking.id,
         room_type: finalRoomType
       });
       console.log('Booking confirmation email sent successfully.');
@@ -863,7 +862,7 @@ router.post('/legacy', async (req, res) => {
     }
 
     // Fetch the complete booking data to return to the client
-    const [bookingData] = await connection.query(
+    const { rows: [bookingData] } = await pool.query(
       `SELECT b.*, 
         b.owner_first_name, b.owner_last_name, b.owner_email, b.owner_phone, b.owner_address,
         b.pet_name, b.pet_type, b.breed, b.gender AS sex
@@ -871,7 +870,7 @@ router.post('/legacy', async (req, res) => {
       
       
       WHERE b.booking_id = ?`,
-      [newBooking.insertId]
+      [newBooking.id]
     );
 
     res.status(201).json({
@@ -879,7 +878,7 @@ router.post('/legacy', async (req, res) => {
       message: 'Booking created successfully!',
       data: {
         ...bookingData[0],
-        bookingId: newBooking.insertId,
+        bookingId: newBooking.id,
         reference_number: finalReferenceNumber,
         status: 'pending'
       }

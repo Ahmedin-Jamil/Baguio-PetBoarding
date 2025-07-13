@@ -185,7 +185,7 @@ router.post('/admin-register', verifyToken, async (req, res) => {
     const [result] = await pool.query(
       `INSERT INTO users 
       (first_name, last_name, email, password, phone, role, created_at) 
-      VALUES (?, ?, ?, ?, ?, ?, NOW())`,
+      VALUES ($1, $2, $3, $4, $5, $6, CURRENT_TIMESTAMP) RETURNING *`,
       [firstName, lastName, email, hashedPassword, phone, role]
     );
     
@@ -193,7 +193,7 @@ router.post('/admin-register', verifyToken, async (req, res) => {
       success: true,
       message: 'Admin user registered successfully',
       data: {
-        user_id: result.insertId,
+        user_id: result.id,
         firstName,
         lastName,
         email,
