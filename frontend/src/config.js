@@ -13,7 +13,7 @@ const environments = {
     apiTimeout: 30000,
   },
   production: {
-    API_URL: 'https://baguiopetboarding.onrender.com',
+    API_URL: 'https://baguio-petboarding.onrender.com',
     GOOGLE_CLIENT_ID: process.env.REACT_APP_GOOGLE_CLIENT_ID,
     enableDebugMode: false,
     apiTimeout: 60000, // 1 minute
