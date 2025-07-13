@@ -27,7 +27,6 @@
     "joi": "^17.13.3",
     "jsonwebtoken": "^9.0.2",
     "langchain": "^0.0.95",
-    "mysql2": "^3.13.0",
     "nodemailer": "^7.0.3",
     "openai": "^4.87.3",
     "pg": "^8.16.3",

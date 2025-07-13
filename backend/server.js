@@ -21,10 +21,19 @@ const notificationsRoutes = require('./routes/notifications');
 const authRoutes = require('./routes/auth');
 
 // Database configuration
-// Import database connection
-const { pool } = require('./config/db');
+// Import database connection and test function
+const { pool, testQuery } = require('./db');
 
 console.log('Using Supabase PostgreSQL database connection...');
+
+// Test database connection
+testQuery().then(success => {
+  if (success) {
+    console.log('Database connection test successful');
+  } else {
+    console.error('Database connection test failed');
+  }
+});
 
 // Import services
 const petApiService = require('./pet_api_service');
@@ -80,6 +89,11 @@ app.use((err, req, res, next) => {
     success: false,
     message: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message
   });
+});
+
+// Health check endpoint for Render
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', message: 'Server is healthy' });
 });
 
 // Register API routes
@@ -337,7 +351,14 @@ app.post('/api/chatbot/query/multilingual', async (req, res) => {
 });
 
 // Import test function from db.js
-const { testQuery } = require('./db');
+// Test database connection
+testQuery().then(success => {
+  if (success) {
+    console.log('Database connection test successful');
+  } else {
+    console.error('Database connection test failed');
+  }
+});
 
 // Test database connection and run test query
 async function testConnection() {
