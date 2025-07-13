@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const bodyParser = require('body-parser');
-const mysql = require('mysql2/promise');
+
 const compression = require('compression');
 const actuator = require('express-actuator');
 const swaggerJsdoc = require('swagger-jsdoc');
@@ -20,41 +20,36 @@ const petsRoutes = require('./routes/pets');
 const notificationsRoutes = require('./routes/notifications');
 
 // Database configuration
-const dbConfig = {
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'pet_hotel',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-};
+// Import database connection
+const { pool } = require('./db');
 
-console.log('Attempting to connect to database with following configuration:');
-console.log('- Host:', dbConfig.host);
-console.log('- User:', dbConfig.user);
-console.log('- Database:', dbConfig.database);
+console.log('Using Supabase PostgreSQL database connection from db.js...');
 
 // Import services
 const petApiService = require('./pet_api_service');
 const geminiService = require('./gemini_service');
 
-// Initialize Redis Client
-const redisClient = createClient({
-  // You might need to add connection details here if Redis is not running on localhost:6379
-  // url: 'redis://username:password@host:port'
-});
+// Initialize Redis Client if not disabled
+let redisClient = null;
+if (!process.env.REDIS_DISABLED || process.env.REDIS_DISABLED !== 'true') {
+  redisClient = createClient({
+    // You might need to add connection details here if Redis is not running on localhost:6379
+    // url: 'redis://username:password@host:port'
+  });
 
-redisClient.on('error', (err) => console.error('Redis Client Error', err));
+  redisClient.on('error', (err) => console.error('Redis Client Error', err));
 
-(async () => {
-  try {
-    await redisClient.connect();
-    console.log('Connected to Redis successfully!');
-  } catch (err) {
-    console.error('Could not connect to Redis:', err);
-  }
-})();
+  (async () => {
+    try {
+      await redisClient.connect();
+      console.log('Connected to Redis successfully!');
+    } catch (err) {
+      console.error('Could not connect to Redis:', err);
+    }
+  })();
+} else {
+  console.log('Redis is disabled via REDIS_DISABLED environment variable');
+}
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -332,34 +327,33 @@ app.post('/api/chatbot/query/multilingual', async (req, res) => {
   }
 });
 
-// Database connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_NAME || 'pet_hotel',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0,
-  enableKeepAlive: true,
-  keepAliveInitialDelay: 0
-});
+// Import test function from db.js
+const { testQuery } = require('./db');
 
-// Test database connection
+// Test database connection and run test query
 async function testConnection() {
   try {
-    const connection = await pool.getConnection();
-    console.log('Database connection established successfully');
-    console.log('Connected to database:', process.env.DB_HOST);
-    connection.release();
+    const client = await pool.connect();
+    console.log('Successfully connected to Supabase PostgreSQL database');
+    client.release();
+
+    // Run test query
+    console.log('Testing database operations...');
+    const testResult = await testQuery();
+    if (testResult) {
+      console.log('All database tests passed!');
+    } else {
+      console.log('Database tests failed!');
+    }
+
     return true;
   } catch (error) {
     console.error('Error connecting to database:', error);
     console.log('Database connection details (without password):');
-    console.log('- Host:', process.env.DB_HOST || 'not set');
-    console.log('- User:', process.env.DB_USER || 'not set');
-    console.log('- Database:', process.env.DB_NAME || 'not set');
-    console.log('- Port:', process.env.DB_PORT || '3306 (default)');
+    console.log('- Host:', process.env.SUPABASE_HOST);
+    console.log('- User:', process.env.SUPABASE_USER);
+    console.log('- Database:', process.env.SUPABASE_DATABASE);
+    console.log('- Port:', process.env.SUPABASE_PORT || '6543');
     console.log('Continuing without database connection...');
     return false;
   }
@@ -799,7 +793,7 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Redis cache middleware
 const cacheMiddleware = async (req, res, next) => {
-  if (req.method !== 'GET') return next();
+  if (!redisClient || req.method !== 'GET') return next();
   
   try {
     const key = `cache:${req.originalUrl}`;
