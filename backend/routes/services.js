@@ -9,13 +9,20 @@ router.get('/', async (req, res) => {
     const { rows: services } = await pool.query(`
       SELECT 
         s.service_id,
-        s.name as service_name,
+        s.service_name,
         s.description,
-        s.price,
-        s.duration as duration_minutes,
-        COALESCE(booked_today.booked_count, 0) as booked_slots,
-        s.active as is_active
+        s.price_small,
+        s.price_medium,
+        s.price_large,
+        s.price_xlarge,
+        s.price_cat,
+        s.duration_hours,
+        s.max_slots,
+        s.service_type,
+        sc.category_name,
+        COALESCE(booked_today.booked_count, 0) as booked_slots
       FROM services s
+      JOIN service_categories sc ON s.category_id = sc.category_id
       LEFT JOIN (
         SELECT 
           bs.service_id,
@@ -26,8 +33,7 @@ router.get('/', async (req, res) => {
         AND b.status IN ('pending', 'confirmed')
         GROUP BY bs.service_id
       ) booked_today ON s.service_id = booked_today.service_id
-      WHERE s.active = TRUE
-      ORDER BY s.name
+      ORDER BY sc.category_name, s.service_name
     `);
     
     res.json({
@@ -57,13 +63,20 @@ router.get('/availability/:date', validateParams(schemas.dateParam), async (req,
     const { rows: services } = await pool.query(`
       SELECT 
         s.service_id,
-        s.name as service_name,
+        s.service_name,
         s.description,
-        s.price,
-        s.duration as duration_minutes,
-        COALESCE(active_bookings.booked_count, 0) as booked_slots,
-        s.active as is_active
+        s.price_small,
+        s.price_medium,
+        s.price_large,
+        s.price_xlarge,
+        s.price_cat,
+        s.duration_hours,
+        s.max_slots,
+        s.service_type,
+        sc.category_name,
+        COALESCE(active_bookings.booked_count, 0) as booked_slots
       FROM services s
+      JOIN service_categories sc ON s.category_id = sc.category_id
       LEFT JOIN (
         SELECT 
           bs.service_id,
@@ -74,8 +87,7 @@ router.get('/availability/:date', validateParams(schemas.dateParam), async (req,
         AND b.status IN ('pending', 'confirmed')
         GROUP BY bs.service_id
       ) active_bookings ON s.service_id = active_bookings.service_id
-      WHERE s.active = TRUE
-      ORDER BY s.name
+      ORDER BY sc.category_name, s.service_name
     `, [date]);
     
     res.json(services);
