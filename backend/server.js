@@ -69,7 +69,6 @@ app.use(cors({
   origin: [
     'https://baguio-pet-boarding.com',
     'https://www.baguio-pet-boarding.com',
-    'https://baguio-petboarding.onrender.com',
     'http://localhost:3002'
   ],
   credentials: true,
