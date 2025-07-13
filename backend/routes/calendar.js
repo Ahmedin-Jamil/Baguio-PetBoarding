@@ -1,20 +1,9 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql2/promise');
+const { pool } = require('../config/db');
 require('dotenv').config();
 const { validate, validateQuery, schemas, commonValidations } = require('../middleware/validation');
 const { verifyToken, isAdmin } = require('../middleware/auth');
-
-// Database connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'pet_hotel',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
 
 // Mark date as unavailable (admin)
 router.post('/unavailable', verifyToken, isAdmin, validate(commonValidations.calendarAvailability), async (req, res) => {

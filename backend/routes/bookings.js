@@ -205,7 +205,7 @@ function normalizeRoomType(roomType) {
  * @param {string} isoString
  * @returns {string|null}
  */
-function isoToMySQLDate(isoString) {
+function formatDate(isoString) {
   if (!isoString) return null;
   if (/^\d{4}-\d{2}-\d{2}$/.test(isoString)) return isoString;
   if (/^\d{4}-\d{2}-\d{2}T/.test(isoString)) return isoString.slice(0, 10);
@@ -715,28 +715,28 @@ router.post('/legacy', async (req, res) => {
     }
 
     // Parse dates and ensure they're in local noon time
-    let mysqlStartDate, mysqlEndDate;
+    let startDateFormatted, endDateFormatted;
     
     try {
       // If dates are already in YYYY-MM-DD format, use them directly
       if (/^\d{4}-\d{2}-\d{2}$/.test(finalBookingDate)) {
-        mysqlStartDate = finalBookingDate;
+        startDateFormatted = finalBookingDate;
       } else {
         // Create date at local noon to avoid timezone issues
         const startDate = new Date(finalBookingDate);
-        mysqlStartDate = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
+        startDateFormatted = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
       }
 
       // Handle end date similarly
       const endDateToUse = finalEndDate || finalBookingDate;
       if (/^\d{4}-\d{2}-\d{2}$/.test(endDateToUse)) {
-        mysqlEndDate = endDateToUse;
+        endDateFormatted = endDateToUse;
       } else {
         const endDate = new Date(endDateToUse);
-        mysqlEndDate = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
+        endDateFormatted = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
       }
 
-      if (!mysqlStartDate || !mysqlEndDate) {
+      if (!startDateFormatted || !endDateFormatted) {
         throw new Error('Failed to parse dates');
       }
     } catch (err) {
@@ -754,8 +754,8 @@ router.post('/legacy', async (req, res) => {
       petId: finalPetId,
       serviceId: finalServiceId,
       isDaycare: is_daycare,
-      startDate: mysqlStartDate,
-      endDate: mysqlEndDate,
+      startDate: startDateFormatted,
+      endDate: endDateFormatted,
       startTime: finalStartTime || '09:00',
       endTime: finalEndTime || '17:00',
 
@@ -788,8 +788,8 @@ router.post('/legacy', async (req, res) => {
         finalUserId,
         finalPetId,
         finalServiceId,
-        mysqlStartDate,
-        mysqlEndDate,
+        startDateFormatted,
+        endDateFormatted,
         to24HourFormat(finalStartTime) || '09:00:00',
         to24HourFormat(finalEndTime) || '17:00:00',
         finalSpecialRequests || '',

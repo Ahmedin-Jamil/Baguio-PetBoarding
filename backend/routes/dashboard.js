@@ -4,21 +4,10 @@
  */
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql2/promise');
+const { pool } = require('../config/db');
 require('dotenv').config();
 const { verifyToken, isAdmin } = require('../middleware/auth');
 const { validateParams, validateQuery, schemas } = require('../middleware/validation');
-
-// Database connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'pet_boarding',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
 
 /**
  * @route   GET /api/dashboard/summary
