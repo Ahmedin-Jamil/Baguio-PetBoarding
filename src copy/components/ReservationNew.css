@@ -1,0 +1,311 @@
+.reservation-page {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f5f5f5;
+  min-height: 100vh;
+}
+
+/* Progress Steps */
+.progress-steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto 30px;
+}
+
+.progress-steps::before {
+  content: '';
+  position: absolute;
+  top: 25px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #e0e0e0;
+  z-index: 1;
+}
+
+.step {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 1;
+}
+
+.step-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: #fff;
+  border: 2px solid #e0e0e0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #757575;
+  transition: all 0.3s ease;
+}
+
+.step-circle.active {
+  background-color: #ffa424;
+  border-color: #ffa424;
+  color: white;
+}
+
+.step-circle.completed {
+  background-color: #4caf50;
+  border-color: #4caf50;
+  color: white;
+}
+
+.step-text {
+  font-size: 14px;
+  color: #757575;
+  text-align: center;
+}
+
+.step-text.active {
+  color: #ffa424;
+  font-weight: 600;
+}
+
+/* Header Section */
+.header-section {
+  background-color: #ffa424;
+  padding: 30px 0;
+  text-align: center;
+  color: white;
+  margin-bottom: 30px;
+}
+
+.header-section h2 {
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+/* Card Styling */
+.info-card {
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  padding: 25px;
+  margin-bottom: 25px;
+}
+
+.info-card h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  font-weight: 600;
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 10px;
+}
+
+/* Form Controls */
+.form-label {
+  font-weight: 500;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.form-control, .form-select {
+  border-radius: 8px;
+  padding: 12px 15px;
+  border: 1px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #ffa424;
+  box-shadow: 0 0 0 0.2rem rgba(255, 164, 36, 0.25);
+}
+
+.form-control::placeholder {
+  color: #aaa;
+}
+
+/* Pet Tabs */
+.pet-tabs-new .nav-link {
+  color: #555;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px 8px 0 0;
+  padding: 10px 20px;
+  margin-right: 5px;
+  transition: all 0.2s ease;
+}
+
+.pet-tabs-new .nav-link.active {
+  color: #ffa424;
+  border-bottom-color: white;
+  font-weight: 600;
+}
+
+.pet-tabs-new .nav-link:hover:not(.active) {
+  background-color: #f9f9f9;
+}
+
+/* Pet Status Indicators */
+.pet-status-new {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+}
+
+.status-dot {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: #e0e0e0;
+  color: #fff;
+  font-weight: 600;
+}
+
+.status-dot.active {
+  background-color: #ffa424;
+  transform: scale(1.1);
+}
+
+.status-dot.completed {
+  background-color: #4caf50;
+}
+
+/* Buttons */
+.btn-primary {
+  background-color: #ffa424;
+  border-color: #ffa424;
+  padding: 10px 25px;
+  border-radius: 30px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  margin-bottom: 30px;
+}
+
+.btn-primary:hover, .btn-primary:focus {
+  background-color: #f59000;
+  border-color: #f59000;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.btn-outline-primary {
+  color: #ffa424;
+  border-color: #ffa424;
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.btn-outline-primary:hover {
+  background-color: #ffa424;
+  color: white;
+}
+
+.btn-success {
+  background-color: #4caf50;
+  border-color: #4caf50;
+  padding: 12px 30px;
+  border-radius: 30px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+  background-color: #43a047;
+  border-color: #43a047;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Additional Info Section */
+.additional-info-section textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* Checkbox Styling */
+.form-check-input {
+  width: 18px;
+  height: 18px;
+  margin-top: 0.25rem;
+  cursor: pointer;
+}
+
+.form-check-input:checked {
+  background-color: #ffa424;
+  border-color: #ffa424;
+}
+
+.form-check-label {
+  padding-left: 5px;
+  cursor: pointer;
+}
+
+/* Terms Link */
+.terms-link {
+  color: #ffa424;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .progress-steps {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .progress-steps::before {
+    display: none;
+  }
+  
+  .step {
+    margin-bottom: 20px;
+  }
+  
+  .info-card {
+    padding: 15px;
+  }
+}
+
+/* Pet Section Styling */
+.pet-section {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+  transition: all 0.3s ease;
+}
+
+.pet-section:hover {
+  box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+}
+
+.pet-section-header {
+  background-color: #f8f9fa;
+  border-left: 4px solid #ffa424;
+  border-radius: 4px;
+  padding: 10px 15px;
+}
+
+.pet-section-header h4 {
+  color: #333;
+  font-size: 1.2rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+.pet-section hr {
+  border-color: #f0f0f0;
+  margin: 25px 0;
+}

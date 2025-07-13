@@ -1,0 +1,773 @@
+<!DOCTYPE html><html lang="en"><head><meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https://cdnjs.cloudflare.com https://cdn.jsdelivr.net https://code.jquery.com https://unpkg.com https://d3js.org https://threejs.org https://cdn.plot.ly https://stackpath.bootstrapcdn.com https://maps.googleapis.com https://cdn.tailwindcss.com https://ajax.googleapis.com https://kit.fontawesome.com https://cdn.datatables.net https://maxcdn.bootstrapcdn.com https://code.highcharts.com https://tako-static-assets-production.s3.amazonaws.com https://www.youtube.com https://fonts.googleapis.com https://fonts.gstatic.com https://pfst.cf2.poecdn.net https://puc.poecdn.net https://i.imgur.com https://wikimedia.org https://*.icons8.com https://*.giphy.com https://picsum.photos https://images.unsplash.com; frame-src 'self' https://www.youtube.com https://trytako.com; child-src 'self'; manifest-src 'self'; worker-src 'self'; upgrade-insecure-requests; block-all-mixed-content;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pet Hotel Admin Dashboard</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            background-color: #3949ab;
+            padding: 15px 20px;
+            border-radius: 8px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 24px;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #7986cb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .dashboard {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .calendar-container {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .bookings-container {
+            flex: 1;
+            min-width: 300px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .calendar {
+            width: 100%;
+        }
+        
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .calendar-nav button {
+            background-color: #e0e0e0;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .calendar-nav button:hover {
+            background-color: #d0d0d0;
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+        
+        .calendar-day-names {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 5px;
+        }
+        
+        .day-name {
+            text-align: center;
+            font-weight: bold;
+            padding: 5px;
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            padding: 5px;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .calendar-day:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .calendar-day.other-month {
+            color: #bdbdbd;
+        }
+        
+        .calendar-day.today {
+            background-color: #e8eaf6;
+            font-weight: bold;
+        }
+        
+        .calendar-day.has-bookings::after {
+            content: '';
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background-color: #f44336;
+        }
+        
+        .day-number {
+            font-size: 14px;
+        }
+        
+        .booking-count {
+            font-size: 10px;
+            color: #f44336;
+            margin-top: 2px;
+        }
+        
+        .bookings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .bookings-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+        
+        .booking-item {
+            padding: 15px;
+            border-bottom: 1px solid #e0e0e0;
+            cursor: pointer;
+        }
+        
+        .booking-item:hover {
+            background-color: #f5f5f5;
+        }
+        
+        .booking-item.selected {
+            background-color: #e8eaf6;
+        }
+        
+        .booking-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 5px;
+        }
+        
+        .pet-name {
+            font-weight: bold;
+            color: #3949ab;
+        }
+        
+        .booking-dates {
+            font-size: 12px;
+            color: #757575;
+        }
+        
+        .booking-details {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-top: 5px;
+        }
+        
+        .pet-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #7986cb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+        
+        .booking-info {
+            flex: 1;
+        }
+        
+        .owner-info {
+            font-size: 12px;
+            color: #616161;
+        }
+        
+        .booking-status {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: bold;
+        }
+        
+        .status-confirmed {
+            background-color: #e8f5e9;
+            color: #388e3c;
+        }
+        
+        .status-pending {
+            background-color: #fff8e1;
+            color: #ffa000;
+        }
+        
+        .status-completed {
+            background-color: #e1f5fe;
+            color: #0288d1;
+        }
+        
+        .status-cancelled {
+            background-color: #ffebee;
+            color: #d32f2f;
+        }
+        
+        .booking-actions {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+        
+        .btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .btn-primary {
+            background-color: #3949ab;
+            color: white;
+        }
+        
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #3949ab;
+            color: #3949ab;
+        }
+        
+        .btn:hover {
+            opacity: 0.9;
+        }
+        
+        .add-booking-btn {
+            background-color: #3949ab;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .filter-container {
+            margin-bottom: 15px;
+        }
+        
+        .filter-dropdown {
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #e0e0e0;
+            width: 100%;
+        }
+        
+        .no-bookings {
+            text-align: center;
+            padding: 20px;
+            color: #757575;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                flex-direction: column;
+            }
+            
+            .calendar-container, .bookings-container {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <script type="text/babel">
+        // Mock data for the bookings
+        const bookingsData = [
+            {
+                id: 1,
+                petName: "Max",
+                petType: "Dog",
+                breed: "Golden Retriever",
+                owner: "John Smith",
+                contactNumber: "555-1234",
+                checkIn: new Date(2025, 3, 29),
+                checkOut: new Date(2025, 4, 3),
+                status: "confirmed",
+                notes: "Allergic to chicken. Needs medication twice daily."
+            },
+            {
+                id: 2,
+                petName: "Bella",
+                petType: "Cat",
+                breed: "Siamese",
+                owner: "Emily Johnson",
+                contactNumber: "555-5678",
+                checkIn: new Date(2025, 3, 27),
+                checkOut: new Date(2025, 3, 30),
+                status: "completed",
+                notes: "Prefers wet food. Very shy around other animals."
+            },
+            {
+                id: 3,
+                petName: "Charlie",
+                petType: "Dog",
+                breed: "Beagle",
+                owner: "Michael Williams",
+                contactNumber: "555-9012",
+                checkIn: new Date(2025, 4, 5),
+                checkOut: new Date(2025, 4, 10),
+                status: "pending",
+                notes: "Energetic. Needs regular walks."
+            },
+            {
+                id: 4,
+                petName: "Luna",
+                petType: "Cat",
+                breed: "Maine Coon",
+                owner: "Sophia Brown",
+                contactNumber: "555-3456",
+                checkIn: new Date(2025, 4, 1),
+                checkOut: new Date(2025, 4, 7),
+                status: "confirmed",
+                notes: "Requires special diet food. Bring own litter."
+            },
+            {
+                id: 5,
+                petName: "Cooper",
+                petType: "Dog",
+                breed: "Labrador",
+                owner: "David Jones",
+                contactNumber: "555-7890",
+                checkIn: new Date(2025, 4, 2),
+                checkOut: new Date(2025, 4, 8),
+                status: "cancelled",
+                notes: "Friendly with other dogs. Afraid of thunderstorms."
+            },
+            {
+                id: 6,
+                petName: "Coco",
+                petType: "Rabbit",
+                breed: "Netherland Dwarf",
+                owner: "Emma Wilson",
+                contactNumber: "555-2345",
+                checkIn: new Date(2025, 3, 30),
+                checkOut: new Date(2025, 4, 5),
+                status: "confirmed",
+                notes: "Needs fresh vegetables daily."
+            },
+            {
+                id: 7,
+                petName: "Rocky",
+                petType: "Dog",
+                breed: "German Shepherd",
+                owner: "James Miller",
+                contactNumber: "555-6789",
+                checkIn: new Date(2025, 4, 4),
+                checkOut: new Date(2025, 4, 9),
+                status: "pending",
+                notes: "Training in progress. Follows specific commands."
+            },
+            {
+                id: 8,
+                petName: "Milo",
+                petType: "Cat",
+                breed: "Persian",
+                owner: "Olivia Davis",
+                contactNumber: "555-0123",
+                checkIn: new Date(2025, 3, 28),
+                checkOut: new Date(2025, 4, 2),
+                status: "completed",
+                notes: "Requires daily grooming. Medication for skin condition."
+            }
+        ];
+
+        // PetHotelApp Component
+        function PetHotelApp() {
+            const [currentDate, setCurrentDate] = React.useState(new Date());
+            const [selectedDate, setSelectedDate] = React.useState(new Date());
+            const [bookings, setBookings] = React.useState(bookingsData);
+            const [statusFilter, setStatusFilter] = React.useState('all');
+            
+            // Filter bookings based on selected date and status
+            const filteredBookings = bookings.filter(booking => {
+                const bookingStart = new Date(booking.checkIn);
+                const bookingEnd = new Date(booking.checkOut);
+                
+                const isDateMatch = (
+                    selectedDate >= bookingStart && 
+                    selectedDate <= bookingEnd
+                );
+                
+                const isStatusMatch = statusFilter === 'all' || booking.status === statusFilter;
+                
+                return isDateMatch && isStatusMatch;
+            });
+            
+            // Function to handle month navigation
+            const changeMonth = (amount) => {
+                const newDate = new Date(currentDate);
+                newDate.setMonth(newDate.getMonth() + amount);
+                setCurrentDate(newDate);
+            };
+            
+            // Check if a date has bookings
+            const hasBookings = (date) => {
+                return bookings.some(booking => {
+                    const bookingStart = new Date(booking.checkIn);
+                    const bookingEnd = new Date(booking.checkOut);
+                    
+                    return date >= bookingStart && date <= bookingEnd;
+                });
+            };
+            
+            // Count bookings for a specific date
+            const countBookings = (date) => {
+                return bookings.filter(booking => {
+                    const bookingStart = new Date(booking.checkIn);
+                    const bookingEnd = new Date(booking.checkOut);
+                    
+                    return date >= bookingStart && date <= bookingEnd;
+                }).length;
+            };
+            
+            // Format date for display
+            const formatDate = (date) => {
+                return new Intl.DateTimeFormat('en-US', {
+                    month: 'long',
+                    year: 'numeric'
+                }).format(date);
+            };
+            
+            // Format date range for bookings
+            const formatDateRange = (start, end) => {
+                const startStr = new Intl.DateTimeFormat('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                }).format(start);
+                
+                const endStr = new Intl.DateTimeFormat('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                }).format(end);
+                
+                return `${startStr} - ${endStr}`;
+            };
+            
+            return (
+                <div className="app-container">
+                    <header>
+                        <h1>Pet Hotel Admin Dashboard</h1>
+                        <div className="user-info">
+                            <span>Admin</span>
+                            <div className="user-avatar">A</div>
+                        </div>
+                    </header>
+                    
+                    <div className="dashboard">
+                        {/* Calendar section */}
+                        <div className="calendar-container">
+                            <Calendar 
+                                currentDate={currentDate}
+                                selectedDate={selectedDate}
+                                onDateSelect={setSelectedDate}
+                                onChangeMonth={changeMonth}
+                                hasBookings={hasBookings}
+                                countBookings={countBookings}
+                                formatDate={formatDate}
+                            />
+                        </div>
+                        
+                        {/* Bookings section */}
+                        <div className="bookings-container">
+                            <div className="bookings-header">
+                                <h2>Bookings</h2>
+                                <button className="add-booking-btn">
+                                    + Add Booking
+                                </button>
+                            </div>
+                            
+                            <div className="filter-container">
+                                <select 
+                                    className="filter-dropdown"
+                                    value={statusFilter}
+                                    onChange={(e) => setStatusFilter(e.target.value)}
+                                >
+                                    <option value="all">All Statuses</option>
+                                    <option value="pending">Pending</option>
+                                    <option value="confirmed">Confirmed</option>
+                                    <option value="completed">Completed</option>
+                                    <option value="cancelled">Cancelled</option>
+                                </select>
+                            </div>
+                            
+                            <BookingsList 
+                                bookings={filteredBookings} 
+                                formatDateRange={formatDateRange}
+                                selectedDate={selectedDate}
+                            />
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+        
+        // Calendar Component
+        function Calendar({ 
+            currentDate, 
+            selectedDate, 
+            onDateSelect, 
+            onChangeMonth, 
+            hasBookings, 
+            countBookings,
+            formatDate 
+        }) {
+            // Generate days for the calendar
+            const generateCalendarDays = () => {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                
+                // First day of the month
+                const firstDay = new Date(year, month, 1);
+                // Last day of the month
+                const lastDay = new Date(year, month + 1, 0);
+                
+                // Day of the week for the first day (0 = Sunday, 6 = Saturday)
+                const firstDayOfWeek = firstDay.getDay();
+                
+                // Array to hold all calendar days
+                const calendarDays = [];
+                
+                // Add days from previous month
+                const daysFromPrevMonth = firstDayOfWeek;
+                for (let i = daysFromPrevMonth - 1; i >= 0; i--) {
+                    const prevMonthDay = new Date(year, month, -i);
+                    calendarDays.push({
+                        date: prevMonthDay,
+                        isCurrentMonth: false
+                    });
+                }
+                
+                // Add days from current month
+                for (let day = 1; day <= lastDay.getDate(); day++) {
+                    const currentDay = new Date(year, month, day);
+                    calendarDays.push({
+                        date: currentDay,
+                        isCurrentMonth: true
+                    });
+                }
+                
+                // Add days from next month to complete the grid
+                const totalDaysToShow = 42; // 6 rows x 7 days
+                const daysFromNextMonth = totalDaysToShow - calendarDays.length;
+                for (let day = 1; day <= daysFromNextMonth; day++) {
+                    const nextMonthDay = new Date(year, month + 1, day);
+                    calendarDays.push({
+                        date: nextMonthDay,
+                        isCurrentMonth: false
+                    });
+                }
+                
+                return calendarDays;
+            };
+            
+            const calendarDays = generateCalendarDays();
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            const isToday = (date) => {
+                return date.getDate() === today.getDate() &&
+                       date.getMonth() === today.getMonth() &&
+                       date.getFullYear() === today.getFullYear();
+            };
+            
+            const isSelected = (date) => {
+                return date.getDate() === selectedDate.getDate() &&
+                       date.getMonth() === selectedDate.getMonth() &&
+                       date.getFullYear() === selectedDate.getFullYear();
+            };
+            
+            return (
+                <div className="calendar">
+                    <div className="calendar-header">
+                        <h2>{formatDate(currentDate)}</h2>
+                        <div className="calendar-nav">
+                            <button onClick={() => onChangeMonth(-1)}>←</button>
+                            <button onClick={() => onChangeMonth(1)}>→</button>
+                        </div>
+                    </div>
+                    
+                    <div className="calendar-day-names">
+                        {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName, index) => (
+                            <div key={index} className="day-name">{dayName}</div>
+                        ))}
+                    </div>
+                    
+                    <div className="calendar-grid">
+                        {calendarDays.map((day, index) => {
+                            const dayClasses = [
+                                'calendar-day',
+                                day.isCurrentMonth ? '' : 'other-month',
+                                isToday(day.date) ? 'today' : '',
+                                isSelected(day.date) ? 'selected' : '',
+                                hasBookings(day.date) ? 'has-bookings' : ''
+                            ].filter(Boolean).join(' ');
+                            
+                            return (
+                                <div 
+                                    key={index} 
+                                    className={dayClasses}
+                                    onClick={() => onDateSelect(day.date)}
+                                >
+                                    <div className="day-number">{day.date.getDate()}</div>
+                                    {hasBookings(day.date) && (
+                                        <div className="booking-count">
+                                            {countBookings(day.date)} booking{countBookings(day.date) !== 1 && 's'}
+                                        </div>
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            );
+        }
+        
+        // BookingsList Component
+        function BookingsList({ bookings, formatDateRange, selectedDate }) {
+            if (bookings.length === 0) {
+                return (
+                    <div className="no-bookings">
+                        No bookings found for {new Intl.DateTimeFormat('en-US', {
+                            month: 'long',
+                            day: 'numeric',
+                            year: 'numeric'
+                        }).format(selectedDate)}
+                    </div>
+                );
+            }
+            
+            return (
+                <div className="bookings-list">
+                    {bookings.map(booking => (
+                        <BookingItem
+                            key={booking.id}
+                            booking={booking}
+                            formatDateRange={formatDateRange}
+                        />
+                    ))}
+                </div>
+            );
+        }
+        
+        // BookingItem Component
+        function BookingItem({ booking, formatDateRange }) {
+            const [expanded, setExpanded] = React.useState(false);
+            
+            const statusClass = `booking-status status-${booking.status}`;
+            const statusText = booking.status.charAt(0).toUpperCase() + booking.status.slice(1);
+            
+            const petInitial = booking.petName.charAt(0).toUpperCase();
+            
+            return (
+                <div 
+                    className={`booking-item ${expanded ? 'selected' : ''}`}
+                    onClick={() => setExpanded(!expanded)}
+                >
+                    <div className="booking-header">
+                        <span className="pet-name">{booking.petName}</span>
+                        <span className={statusClass}>{statusText}</span>
+                    </div>
+                    <div className="booking-dates">
+                        {formatDateRange(booking.checkIn, booking.checkOut)}
+                    </div>
+                    
+                    <div className="booking-details">
+                        <div className="pet-avatar">{petInitial}</div>
+                        <div className="booking-info">
+                            <div>{booking.petType} - {booking.breed}</div>
+                            <div className="owner-info">Owner: {booking.owner} • {booking.contactNumber}</div>
+                        </div>
+                    </div>
+                    
+                    {expanded && (
+                        <div className="expanded-content">
+                            <div className="notes-section">
+                                <p><strong>Notes:</strong> {booking.notes}</p>
+                            </div>
+                            
+                            <div className="booking-actions">
+                                <button className="btn btn-primary">Edit Booking</button>
+                                <button className="btn btn-outline">Cancel Booking</button>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+        
+        // Render the app
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<PetHotelApp />);
+    </script>
+
+
+</body></html>

@@ -1,0 +1,138 @@
+.photo-gallery-modal .modal-dialog {
+  max-width: 800px;
+}
+
+.fullscreen-modal .modal-dialog {
+  max-width: 95vw;
+  max-height: 95vh;
+  margin: 0 auto;
+}
+
+.photo-gallery-modal .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #eee;
+  padding: 15px 20px;
+}
+
+.photo-gallery-modal .modal-title {
+  font-weight: 600;
+  color: #343a40;
+}
+
+.modal-controls {
+  display: flex;
+  gap: 10px;
+}
+
+.close-btn, .fullscreen-btn {
+  color: #ffffff !important;
+  background: transparent;
+  border: none;
+  padding: 5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.close-btn:hover, .fullscreen-btn:hover {
+  opacity: 0.8;
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.photo-gallery-modal .modal-header .btn-close {
+  color: white;
+  filter: invert(1) grayscale(100%) brightness(200%);
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  padding: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  opacity: 0.8;
+  transition: all 0.2s ease;
+}
+
+.photo-gallery-modal .modal-header .btn-close:hover {
+  opacity: 1;
+  background-color: rgba(0, 0, 0, 0.7);
+  transform: scale(1.1);
+}
+
+.photo-gallery-modal .modal-content {
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.carousel-image-container {
+  height: 70vh;
+}
+
+.carousel-image {
+  max-height: 100%;
+  width: auto !important;
+  margin: 0 auto;
+  object-fit: contain;
+}
+
+.carousel-caption {
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 4px;
+  padding: 10px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+.carousel-control-prev, .carousel-control-next {
+  width: 10%;
+  opacity: 0.7;
+}
+
+.carousel-control-prev:hover, .carousel-control-next:hover {
+  opacity: 1;
+}
+
+.thumbnail-container {
+  padding: 15px 0;
+  border-top: 1px solid #eee;
+  margin-top: 15px;
+}
+
+.thumbnail {
+  cursor: pointer;
+  border: 2px solid transparent;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  overflow: hidden;
+  transition: all 0.2s;
+  opacity: 0.7;
+}
+
+.thumbnail:hover {
+  opacity: 0.9;
+}
+
+.thumbnail.active {
+  border-color: #17a2b8;
+  opacity: 1;
+}
+
+.thumbnail img {
+  height: 60px;
+  width: 100%;
+  object-fit: cover;
+}
+
+@media (max-width: 768px) {
+  .carousel-image-container {
+    height: 300px;
+  }
+  
+  .fullscreen-modal .carousel-image-container {
+    height: 50vh;
+  }
+  
+  .thumbnail img {
+    height: 40px;
+  }
+}

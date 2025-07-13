@@ -1,0 +1,59 @@
+<svg width="800" height="600" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f5fff5"/>
+  
+  <!-- Play Area outline -->
+  <rect x="50" y="100" width="700" height="400" fill="#ffffff" stroke="#333" stroke-width="2" rx="20" ry="20"/>
+  
+  <!-- Grass Area -->
+  <rect x="80" y="150" width="640" height="320" fill="#e6ffe6" stroke="#333" stroke-width="1" rx="15" ry="15"/>
+  
+  <!-- Play Equipment -->
+  <!-- Tunnel -->
+  <rect x="150" y="200" width="120" height="80" fill="#ffcc99" stroke="#333" stroke-width="2" rx="40" ry="40"/>
+  <rect x="160" y="210" width="100" height="60" fill="#ffe6cc" stroke="#333" stroke-width="1" rx="30" ry="30"/>
+  
+  <!-- Ball Pit -->
+  <circle cx="350" cy="240" r="60" fill="#ffcccc" stroke="#333" stroke-width="2"/>
+  <circle cx="330" cy="220" r="10" fill="#ff9999" stroke="#333" stroke-width="1"/>
+  <circle cx="370" cy="230" r="10" fill="#ff9999" stroke="#333" stroke-width="1"/>
+  <circle cx="340" cy="250" r="10" fill="#ff9999" stroke="#333" stroke-width="1"/>
+  <circle cx="360" cy="260" r="10" fill="#ff9999" stroke="#333" stroke-width="1"/>
+  
+  <!-- Resting Area -->
+  <rect x="500" y="200" width="180" height="120" fill="#e6ccb3" stroke="#333" stroke-width="2" rx="10" ry="10"/>
+  <rect x="520" y="220" width="140" height="80" fill="#f9e8d0" stroke="#333" stroke-width="1" rx="5" ry="5"/>
+  
+  <!-- Water Station -->
+  <circle cx="150" cy="380" r="40" fill="#e6f7ff" stroke="#333" stroke-width="2"/>
+  <circle cx="150" cy="380" r="30" fill="#ccefff" stroke="#333" stroke-width="1"/>
+  
+  <!-- Toy Box -->
+  <rect x="250" cy="350" width="100" height="80" fill="#d4a76a" stroke="#333" stroke-width="2"/>
+  <rect x="250" cy="350" width="100" height="20" fill="#b38c5c" stroke="#333" stroke-width="1"/>
+  <circle cx="280" cy="370" r="10" fill="#ff9999" stroke="#333" stroke-width="1"/>
+  <circle cx="310" cy="380" r="10" fill="#99ff99" stroke="#333" stroke-width="1"/>
+  
+  <!-- Pets (simplified) -->
+  <!-- Dog -->
+  <circle cx="400" cy="380" r="25" fill="#f9e8d0" stroke="#333" stroke-width="2"/>
+  <circle cx="385" cy="370" r="5" fill="#333"/>
+  <circle cx="415" cy="370" r="5" fill="#333"/>
+  <path d="M 390 390 Q 400 400 410 390" stroke="#333" stroke-width="2" fill="none"/>
+  
+  <!-- Cat -->
+  <circle cx="500" cy="380" r="20" fill="#e6e6e6" stroke="#333" stroke-width="2"/>
+  <circle cx="490" cy="370" r="4" fill="#333"/>
+  <circle cx="510" cy="370" r="4" fill="#333"/>
+  <path d="M 495 385 Q 500 390 505 385" stroke="#333" stroke-width="2" fill="none"/>
+  <path d="M 480 360 L 490 350 L 500 360" stroke="#333" stroke-width="2" fill="none"/>
+  <path d="M 500 360 L 510 350 L 520 360" stroke="#333" stroke-width="2" fill="none"/>
+  
+  <!-- Text -->
+  <text x="400" y="80" font-family="Arial" font-size="24" text-anchor="middle" fill="#333">Pet Daycare</text>
+  <text x="150" y="430" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">Water Station</text>
+  <text x="350" y="320" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">Ball Pit</text>
+  <text x="210" y="190" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">Play Tunnel</text>
+  <text x="590" y="190" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">Resting Area</text>
+  <text x="300" y="450" font-family="Arial" font-size="14" text-anchor="middle" fill="#333">Toy Box</text>
+</svg>

@@ -1,0 +1,85 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "logs\\.9bc5ac3699ae1332fb5f7c69dbaee81e65e38765-audit.json",
+    "files": [
+        {
+            "date": 1751097639018,
+            "name": "logs\\2025-06-28-development.log",
+            "hash": "871d0a63aeb535c4c8389e83490af6606092b0db62a2b0371ad655114e50bf48"
+        },
+        {
+            "date": 1751178588478,
+            "name": "logs\\2025-06-29-development.log",
+            "hash": "c7fe9da53af4045964190f3eff90ee526bd7e0fa0b5b876c5ed864731d09c0b6"
+        },
+        {
+            "date": 1751243191161,
+            "name": "logs\\2025-06-30-development.log",
+            "hash": "d3bf25c94cc9b97f905da9b12147d0b7c896db7365b7fb2c40da79d66ad03c7e"
+        },
+        {
+            "date": 1751301463824,
+            "name": "logs\\2025-07-01-development.log",
+            "hash": "5f91c4b3c638c136cca16d19e229942f811901bc9e85ee8ecf6b1fa2348e9b7d"
+        },
+        {
+            "date": 1751421926413,
+            "name": "logs\\2025-07-02-development.log",
+            "hash": "cb864fb82f7ebeeead7b5226f688e91e2d7d5432bfbc579f5e1def266e6071dc"
+        },
+        {
+            "date": 1751510290244,
+            "name": "logs\\2025-07-03-development.log",
+            "hash": "e9f5495d9b933340ec51ad3878876e0cefd279618a6d773fce4d529e795e2ccf"
+        },
+        {
+            "date": 1751593057551,
+            "name": "logs\\2025-07-04-development.log",
+            "hash": "924e29ecec4b3b4f6e712d31a58ed16a6ca5aee0dbb9deaf65c05105989201a8"
+        },
+        {
+            "date": 1751698806506,
+            "name": "logs\\2025-07-05-development.log",
+            "hash": "e4de9007122d987ff4a82ae2c3656c61e4d06bbc2aa8e009c5518783d174a1b6"
+        },
+        {
+            "date": 1751766445418,
+            "name": "logs\\2025-07-06-development.log",
+            "hash": "ea5d731529fddc48afd080536ccc72acba63b9b29c17440cbd05fe345429ce41"
+        },
+        {
+            "date": 1751817763140,
+            "name": "logs\\2025-07-07-development.log",
+            "hash": "bd92ea6c06883bf91ad6e29cccc6cf4a60674001679c9bcc2175c61ba3041ee7"
+        },
+        {
+            "date": 1751939930170,
+            "name": "logs\\2025-07-08-development.log",
+            "hash": "c1149bc80bab12c04688ee3bcea5e0ea6b9992654cf297b19529b058271c28ef"
+        },
+        {
+            "date": 1751991264236,
+            "name": "logs\\2025-07-09-development.log",
+            "hash": "973966e95abbcfa447ae9fbab6b4c834ab10a7fe6f4f3773c6bfbf9dfb09900c"
+        },
+        {
+            "date": 1752077122901,
+            "name": "logs\\2025-07-10-development.log",
+            "hash": "9ea2e8e3e592233b8a9b5713867dc3f6b719c624f9e15adbcd15cab81a8dd4d4"
+        },
+        {
+            "date": 1752163572167,
+            "name": "logs\\2025-07-11-development.log",
+            "hash": "27fbc773fc7ff877f3682f1a6f61f7df494e4e0ea9cd26b52589737609e013ef"
+        },
+        {
+            "date": 1752249682701,
+            "name": "logs\\2025-07-12-development.log",
+            "hash": "40d219a18a79d9f79795064bad6b32fedfe863b2a2fec4e5545245daa731a095"
+        }
+    ],
+    "hashType": "sha256"
+}

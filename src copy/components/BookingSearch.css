@@ -1,0 +1,158 @@
+.booking-search-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #fff9f5;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.search-form {
+  background: #fff;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.15);
+  margin-bottom: 2rem;
+  border: 1px solid rgba(255, 165, 0, 0.2);
+}
+
+.search-type {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem;
+}
+
+.search-type label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+}
+
+.search-input {
+  display: flex;
+  gap: 1rem;
+}
+
+.search-input input {
+  flex: 1;
+  padding: 1rem;
+  border: 2px solid #ffd7b5;
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.search-input input:focus {
+  outline: none;
+  border-color: #ff8c00;
+  box-shadow: 0 0 0 3px rgba(255, 140, 0, 0.2);
+}
+
+.search-input button {
+  padding: 0.75rem 1.5rem;
+  background-color: #ff8c00;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.search-input button:hover {
+  background-color: #ff7000;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(255, 140, 0, 0.3);
+}
+
+.search-input button:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.error-message {
+  color: #dc3545;
+  margin: 1rem 0;
+  padding: 0.75rem;
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+.bookings-list {
+  margin-top: 2rem;
+}
+
+.booking-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(255, 165, 0, 0.1);
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  border: 1px solid rgba(255, 165, 0, 0.15);
+  transition: transform 0.3s ease;
+}
+
+.booking-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 165, 0, 0.15);
+}
+
+.booking-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.pet-name {
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.status-confirmed {
+  background-color: #28a745;
+  color: white;
+}
+
+.status-pending {
+  background-color: #ff8c00;
+  color: white;
+  font-weight: 600;
+}
+
+.status-cancelled {
+  background-color: #dc3545;
+  color: white;
+}
+
+.status-completed {
+  background-color: #6c757d;
+  color: white;
+}
+
+.booking-details {
+  color: #666;
+}
+
+.booking-details p {
+  margin: 0.5rem 0;
+}
+
+.booking-details strong {
+  color: #333;
+}

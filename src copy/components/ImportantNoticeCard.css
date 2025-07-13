@@ -1,0 +1,15 @@
+.important-notice-card {
+  background-color: white;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 15px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  border-left: 4px solid #28a745;
+}
+
+.important-notice-text {
+  margin: 0;
+  color: #28a745;
+  font-size: 1rem;
+  line-height: 1.5;
+}

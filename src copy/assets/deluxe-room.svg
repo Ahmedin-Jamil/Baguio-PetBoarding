@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="600" viewBox="0 0 800 600">
+  <!-- Background -->
+  <rect width="800" height="600" fill="#f5f5f5"/>
+  
+  <!-- Room outline -->
+  <rect x="100" y="100" width="600" height="400" fill="#ffffff" stroke="#333333" stroke-width="3"/>
+  
+  <!-- Window -->
+  <rect x="150" y="150" width="150" height="150" fill="#e6f7ff" stroke="#333333" stroke-width="2"/>
+  <line x1="150" y1="225" x2="300" y2="225" stroke="#333333" stroke-width="2"/>
+  <line x1="225" y1="150" x2="225" y2="300" stroke="#333333" stroke-width="2"/>
+  
+  <!-- Pet bed -->
+  <ellipse cx="500" cy="350" rx="100" ry="60" fill="#ffd699" stroke="#cc9966" stroke-width="2"/>
+  <ellipse cx="500" cy="350" rx="80" ry="45" fill="#ffe6cc" stroke="#cc9966" stroke-width="1"/>
+  
+  <!-- Food and water bowls -->
+  <circle cx="200" cy="400" r="30" fill="#ff9999" stroke="#cc6666" stroke-width="2"/>
+  <circle cx="280" cy="400" r="30" fill="#99ccff" stroke="#6699cc" stroke-width="2"/>
+  
+  <!-- Toy -->
+  <circle cx="400" cy="380" r="20" fill="#99ff99" stroke="#66cc66" stroke-width="2"/>
+  
+  <!-- Room label -->
+  <text x="400" y="50" font-family="Arial" font-size="24" text-anchor="middle" fill="#333333">Deluxe Pet Room</text>
+  <text x="400" y="80" font-family="Arial" font-size="16" text-anchor="middle" fill="#666666">Comfortable accommodation for your pet</text>
+</svg>

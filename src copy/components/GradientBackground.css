@@ -1,0 +1,14 @@
+/*.gradient-background {
+  background: #FFE0B2;
+}
+
+.gradient-background-light {
+  background: #FFF3E0;
+}
+
+.gradient-background-dark {
+  background: #FFB74D;
+}*/
+.gradient-background {
+  background: linear-gradient(to bottom, #ffa424, #ffd9a4);
+}

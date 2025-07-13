@@ -1,0 +1,366 @@
+/* DaycareReservation.css - Styled similar to OvernightReservation.css for consistency */
+
+.reservation-root {
+  font-family: 'Inter', 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  min-height: 100vh;
+  padding-bottom: 80px;
+  position: relative;
+}
+
+.header-section {
+  background: linear-gradient(135deg, #F97A00 0%, #FF8C42 100%);
+  padding: 50px 0;
+  text-align: center;
+  color: white;
+  margin-bottom: 40px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
+  position: relative;
+  overflow: hidden;
+}
+
+.header-section h2 {
+  font-weight: 800;
+  margin-bottom: 12px;
+  font-size: 2.5rem;
+  letter-spacing: -0.025em;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: relative;
+  z-index: 1;
+}
+
+.header-section p {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  margin-bottom: 0;
+  font-weight: 300;
+  position: relative;
+  z-index: 1;
+}
+
+.container {
+  position: relative;
+  z-index: 1;
+}
+
+.info-card {
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border-radius: 20px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 35px;
+  margin-bottom: 35px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.info-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.12);
+}
+
+.info-card h3 {
+  color: #2d3748;
+  font-size: 1.6rem;
+  margin-bottom: 30px;
+  font-weight: 700;
+  border-bottom: 2px solid #f7fafc;
+  padding-bottom: 20px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.025em;
+}
+
+.info-card h3 .fa-icon, .info-card h3 .me-2 {
+  margin-right: 15px;
+  color: #F97A00;
+  padding: 8px;
+  background: rgba(249, 122, 0, 0.1);
+  border-radius: 10px;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #4a5568;
+  margin-bottom: 12px;
+  font-size: 0.95rem;
+  letter-spacing: 0.025em;
+}
+
+.form-control, .form-select {
+  border-radius: 12px;
+  padding: 16px 18px;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #ffffff;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: #F97A00;
+  box-shadow: 0 0 0 3px rgba(249, 122, 0, 0.1);
+  background-color: #ffffff;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.form-control::placeholder {
+  color: #a0aec0;
+  font-size: 0.9rem;
+  font-weight: 400;
+}
+
+.availability-info {
+  background: linear-gradient(135deg, #F97A00 0%, #E86D00 100%);
+  border-radius: 15px;
+  padding: 25px 30px;
+  box-shadow: 0 8px 25px rgba(249, 122, 0, 0.2);
+  margin-bottom: 30px;
+  border: none;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.availability-info h5 {
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.pet-info-title {
+  color: #F97A00;
+  font-weight: 700;
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  letter-spacing: -0.025em;
+}
+
+.field-label {
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 10px;
+  color: #4a5568;
+  letter-spacing: 0.025em;
+}
+
+.btn-success {
+  background: linear-gradient(135deg, #F97A00 0%, #E86D00 100%);
+  border: none;
+  padding: 16px 40px;
+  border-radius: 50px;
+  font-weight: 700;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+  color: white;
+  box-shadow: 0 8px 25px rgba(249, 122, 0, 0.3);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #E86D00 0%, #D95F00 100%);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(249, 122, 0, 0.4);
+}
+
+.btn-success:focus {
+  box-shadow: 0 0 0 4px rgba(249, 122, 0, 0.2);
+}
+
+.help-button, .rounded-circle {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #F97A00 0%, #E86D00 100%);
+  color: white;
+  box-shadow: 0 8px 25px rgba(249, 122, 0, 0.3);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1000;
+  border: none;
+}
+
+.help-button:hover, .rounded-circle:hover {
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 12px 35px rgba(249, 122, 0, 0.4);
+}
+
+.terms-link {
+  color: #F97A00;
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border-bottom: 1px solid transparent;
+}
+
+.terms-link:hover {
+  color: #E86D00;
+  border-bottom-color: #E86D00;
+}
+
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  border-radius: 6px;
+  border: 2px solid #e2e8f0;
+  background-color: white;
+  transition: all 0.2s ease;
+}
+
+input[type="checkbox"]:checked {
+  background-color: #F97A00;
+  border-color: #F97A00;
+}
+
+.grid {
+  gap: 20px;
+}
+
+.form-control:focus, .form-select:focus {
+  animation: pulse-border 2s infinite;
+}
+
+@keyframes pulse-border {
+  0% { box-shadow: 0 0 0 3px rgba(249, 122, 0, 0.1); }
+  50% { box-shadow: 0 0 0 3px rgba(249, 122, 0, 0.2); }
+  100% { box-shadow: 0 0 0 3px rgba(249, 122, 0, 0.1); }
+}
+
+.react-datepicker-wrapper {
+  width: 100%;
+  position: relative;
+}
+
+.react-datepicker-popper {
+  z-index: 1000 !important;
+}
+
+.react-datepicker {
+  font-family: inherit !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 12px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+}
+
+.react-datepicker__input-container input {
+  width: 100%;
+  padding: 16px 18px !important;
+  border-radius: 12px !important;
+  border: 2px solid #e2e8f0 !important;
+  color: #495057 !important;
+  background-color: #fff !important;
+  font-size: 0.95rem !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+  height: 56px !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  font-family: inherit !important;
+}
+.react-datepicker__input-container input:disabled {
+  background-color: #f8f9fa !important;
+  color: #a0aec0 !important;
+  border: 2px solid #e2e8f0 !important;
+  opacity: 1 !important;
+  height: 56px !important;
+  padding: 16px 18px !important;
+  border-radius: 12px !important;
+  font-size: 0.95rem !important;
+  font-family: inherit !important;
+}
+
+.react-datepicker__input-container input:focus {
+  border-color: #F97A00;
+  box-shadow: 0 0 0 3px rgba(249, 122, 0, 0.1);
+  background-color: #ffffff;
+  transform: translateY(-1px);
+  outline: none;
+}
+
+.additional-info-section {
+  background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+}
+
+.additional-info-section h3 {
+  color: #2d3748;
+}
+
+.additional-info-section p {
+  color: #718096;
+  font-style: italic;
+  margin-bottom: 20px;
+}
+
+.form-check {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.form-check-input:checked {
+  background-color: #F97A00;
+  border-color: #F97A00;
+}
+
+.form-check-label {
+  font-weight: 500;
+  color: #2d3748;
+}
+
+@media (max-width: 768px) {
+  .header-section {
+    padding: 35px 0;
+  }
+  .header-section h2 {
+    font-size: 2rem;
+  }
+  .info-card {
+    padding: 25px;
+    margin-bottom: 25px;
+  }
+  .help-button, .rounded-circle {
+    width: 50px;
+    height: 50px;
+    bottom: 20px;
+    right: 20px;
+  }
+  .btn-success {
+    padding: 14px 30px;
+    font-size: 0.95rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .reservation-root {
+    padding-bottom: 60px;
+  }
+  .header-section h2 {
+    font-size: 1.75rem;
+  }
+  .info-card {
+    padding: 20px;
+    border-radius: 15px;
+  }
+  .info-card h3 {
+    font-size: 1.4rem;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+::selection {
+  background-color: rgba(249, 122, 0, 0.2);
+  color: #2d3748;
+}
