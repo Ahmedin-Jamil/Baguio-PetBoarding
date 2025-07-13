@@ -360,29 +360,19 @@ testQuery().then(success => {
   }
 });
 
-// Test database connection and run test query
-async function testConnection() {
-  try {
-    const client = await pool.connect();
-    console.log('Successfully connected to Supabase PostgreSQL database');
-    client.release();
-
-    // Skipping testQuery to avoid log noise
-
-    return true;
-  } catch (error) {
-    console.error('Error connecting to database:', error);
-    console.log('Database connection details (without password):');
-    console.log('- Host:', process.env.SUPABASE_HOST);
-    console.log('- User:', process.env.SUPABASE_USER);
-    console.log('- Database:', process.env.SUPABASE_DATABASE);
-    console.log('- Port:', process.env.SUPABASE_PORT || '6543');
-    console.log('Continuing without database connection...');
-    return false;
-  }
-}
-
-testConnection();
+// Verify database connection on startup
+pool.connect().then(client => {
+  console.log('Successfully connected to Supabase PostgreSQL database');
+  client.release();
+}).catch(error => {
+  console.error('Error connecting to database:', error);
+  console.log('Database connection details (without password):');
+  console.log('- Host:', process.env.SUPABASE_HOST);
+  console.log('- User:', process.env.SUPABASE_USER);
+  console.log('- Database:', process.env.SUPABASE_DATABASE);
+  console.log('- Port:', process.env.SUPABASE_PORT || '6543');
+  console.log('Continuing without database connection...');
+});
 
 // Helper function to ensure required tables exist
 const ensureRequiredTables = async () => {
