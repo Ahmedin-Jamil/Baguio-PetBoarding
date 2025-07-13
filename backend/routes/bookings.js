@@ -4,7 +4,7 @@
  */
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/database');
+const { pool } = require('../config/db');
 
 const emailService = require('../services/emailService');
 const bookingController = require('../controllers/bookingController'); // Flattened schema controller
@@ -884,19 +884,13 @@ router.post('/legacy', async (req, res) => {
         status: 'pending'
       }
     });
-
   } catch (error) {
-    await connection.rollback();
     console.error('Error creating booking:', error);
     res.status(500).json({
       success: false,
       message: 'An error occurred while creating the booking.',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Internal Server Error'
     });
-  } finally {
-    if (connection) {
-      connection.release();
-    }
   }
 });
 
