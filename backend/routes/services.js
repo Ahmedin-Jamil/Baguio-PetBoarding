@@ -9,27 +9,25 @@ router.get('/', async (req, res) => {
     const { rows: services } = await pool.query(`
       SELECT 
         s.service_id,
-        s.service_name,
-        s.service_type,
-        sc.category_name,
-        s.max_slots,
+        s.name as service_name,
+        s.description,
+        s.price,
+        s.duration as duration_minutes,
         COALESCE(booked_today.booked_count, 0) as booked_slots,
-        (s.max_slots - COALESCE(booked_today.booked_count, 0)) as available_slots,
-        s.duration_hours,
-        s.description
+        s.active as is_active
       FROM services s
-      JOIN service_categories sc ON s.category_id = sc.category_id
       LEFT JOIN (
         SELECT 
-          service_id,
+          bs.service_id,
           COUNT(*) as booked_count
-        FROM bookings 
-        WHERE booking_date = CURRENT_DATE 
-        AND status IN ('pending', 'confirmed')
-        GROUP BY service_id
+        FROM booking_services bs
+        JOIN bookings b ON b.booking_id = bs.booking_id
+        WHERE b.start_date <= CURRENT_DATE AND b.end_date >= CURRENT_DATE
+        AND b.status IN ('pending', 'confirmed')
+        GROUP BY bs.service_id
       ) booked_today ON s.service_id = booked_today.service_id
-      WHERE s.is_active = TRUE
-      ORDER BY sc.category_id, s.service_name
+      WHERE s.active = TRUE
+      ORDER BY s.name
     `);
     
     res.json({
@@ -59,25 +57,25 @@ router.get('/availability/:date', validateParams(schemas.dateParam), async (req,
     const { rows: services } = await pool.query(`
       SELECT 
         s.service_id,
-        s.service_name,
-        s.service_type,
-        sc.category_name,
-        s.max_slots,
+        s.name as service_name,
+        s.description,
+        s.price,
+        s.duration as duration_minutes,
         COALESCE(active_bookings.booked_count, 0) as booked_slots,
-        (s.max_slots - COALESCE(active_bookings.booked_count, 0)) as available_slots
+        s.active as is_active
       FROM services s
-      JOIN service_categories sc ON s.category_id = sc.category_id
       LEFT JOIN (
         SELECT 
-          service_id,
+          bs.service_id,
           COUNT(*) as booked_count
-        FROM bookings 
-        WHERE $1 BETWEEN start_date AND end_date 
-        AND status IN ('pending', 'confirmed')
-        GROUP BY service_id
+        FROM booking_services bs
+        JOIN bookings b ON b.booking_id = bs.booking_id
+        WHERE $1 BETWEEN b.start_date AND b.end_date
+        AND b.status IN ('pending', 'confirmed')
+        GROUP BY bs.service_id
       ) active_bookings ON s.service_id = active_bookings.service_id
-      WHERE s.is_active = TRUE
-      ORDER BY sc.category_id, s.service_name
+      WHERE s.active = TRUE
+      ORDER BY s.name
     `, [date]);
     
     res.json(services);
