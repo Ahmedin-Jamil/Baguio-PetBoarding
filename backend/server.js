@@ -54,8 +54,16 @@ if (!process.env.REDIS_DISABLED || process.env.REDIS_DISABLED !== 'true') {
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Open CORS policy
-app.use(cors());
+// Configure CORS with explicit origins
+app.use(cors({
+  origin: [
+    'https://baguio-pet-boarding.com',
+    'https://www.baguio-pet-boarding.com',
+    'http://localhost:3002'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS']
+}));
 
 // Body parsing middleware
 app.use(express.json({ limit: '10mb' }));
@@ -840,5 +848,15 @@ const startServer = () => {
 
 // Start the server
 startServer();
+
+// Global error logger
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    stack: process.env.NODE_ENV === 'production' ? undefined : err.stack
+  });
+});
 
 module.exports = app;

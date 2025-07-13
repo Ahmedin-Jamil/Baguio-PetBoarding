@@ -6,6 +6,7 @@
 const express = require('express');
 const router = express.Router();
 const availabilityController = require('../controllers/availabilityController');
+const pool = require('../db');
 const bookingController = require('../controllers/bookingController');
 
 // Get room availability for a specific date
