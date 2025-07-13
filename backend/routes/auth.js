@@ -17,65 +17,58 @@ const { pool } = require('../config/db');
  * @desc    Register a new user
  * @access  Public
  */
-router.post('/register', validate(schemas.userRegistration), async (req, res) => {
+router.post('/admin/login', validate(schemas.adminLogin), async (req, res) => {
   try {
-    const { firstName, lastName, email, password, phone, address } = req.body;
+    console.log('Admin login request body:', req.body);
+    const { username, password } = req.body;
     
-    // Check if user exists
-    const [existingUser] = await pool.query(
-      'SELECT * FROM users WHERE email = ?',
-      [email]
+    // Check if admin exists
+    const { rows: [admin] } = await pool.query(
+      'SELECT * FROM admin WHERE username = $1',
+      [username]
     );
     
-    if (existingUser.length > 0) {
-      return res.status(400).json({
+    if (!admin) {
+      return res.status(401).json({
         success: false,
-        message: 'User already exists with this email'
+        message: 'Invalid credentials'
       });
     }
     
-    // Hash password
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    // Check password
+    const isValidPassword = await bcrypt.compare(password, admin.password);
     
-    // Set default role to 'customer'
-    const role = 'customer';
-    
-    // Create user
-    const [result] = await pool.query(
-      `INSERT INTO users 
-      (first_name, last_name, email, password, phone, address, role, created_at) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, NOW())`,
-      [firstName, lastName, email, hashedPassword, phone, address, role]
-    );
+    if (!isValidPassword) {
+      return res.status(401).json({
+        success: false,
+        message: 'Invalid credentials'
+      });
+    }
     
     // Create JWT token
-    const user = {
-      user_id: result.insertId,
-      email,
-      role
+    const adminData = {
+      admin_id: admin.admin_id,
+      username: admin.username,
+      role: 'admin'
     };
     
-    const token = generateToken(user);
+    const token = generateToken(adminData);
     
-    res.status(201).json({
+    res.status(200).json({
       success: true,
-      message: 'User registered successfully',
+      message: 'Admin logged in successfully',
       data: {
-        user_id: result.insertId,
-        firstName,
-        lastName,
-        email,
-        role,
+        admin_id: admin.admin_id,
+        username: admin.username,
         token
       }
     });
     
   } catch (error) {
-    console.error('Error registering user:', error);
+    console.error('Error logging in admin:', error);
     res.status(500).json({
       success: false,
-      message: 'Error registering user',
+      message: 'Error logging in',
       error: process.env.NODE_ENV === 'development' ? error.message : 'Server error'
     });
   }
@@ -91,8 +84,8 @@ router.post('/login', validate(schemas.userLogin), async (req, res) => {
     const { email, password } = req.body;
     
     // Check if user exists
-    const [users] = await pool.query(
-      'SELECT * FROM users WHERE email = ?',
+    const { rows: users } = await pool.query(
+      'SELECT * FROM users WHERE email = $1',
       [email]
     );
     
@@ -151,7 +144,7 @@ router.post('/login', validate(schemas.userLogin), async (req, res) => {
  * @desc    Register an admin user (protected)
  * @access  Admin only
  */
-router.post('/admin-register', validate(schemas.userRegistration), async (req, res) => {
+router.post('/admin-register', verifyToken, async (req, res) => {
   try {
     // This route is for initial admin setup or by super admin
     // In production, this would have stronger restrictions
@@ -381,7 +374,7 @@ router.post('/change-password', verifyToken, validate(schemas.changePassword), a
     const userId = req.user.user_id;
     
     // Get user from database with prepared statement to prevent SQL injection
-    const [users] = await pool.query('SELECT * FROM users WHERE id = ?', [userId]);
+    const { rows: users } = await pool.query('SELECT * FROM users WHERE user_id = $1', [userId]);
     
     if (users.length === 0) {
       return res.status(404).json({ success: false, message: 'User not found' });
@@ -400,11 +393,11 @@ router.post('/change-password', verifyToken, validate(schemas.changePassword), a
     const hashedPassword = await bcrypt.hash(newPassword, 12);
     
     // Update password using prepared statement
-    await pool.query('UPDATE users SET password = ?, updated_at = NOW() WHERE user_id = ?', [hashedPassword, userId]);
+    await pool.query('UPDATE users SET password = $1, updated_at = CURRENT_TIMESTAMP WHERE user_id = $2', [hashedPassword, userId]);
     
     // Add to audit log with prepared statement
     await pool.query(
-      'INSERT INTO audit_log (user_id, action, description, ip_address) VALUES (?, ?, ?, ?)',
+      'INSERT INTO audit_log (user_id, action, description, ip_address) VALUES ($1, $2, $3, $4)',
       [userId, 'password_change', 'Password changed by authenticated user', req.ip || 'unknown']
     );
     

@@ -18,6 +18,7 @@ const unavailableDatesRoutes = require('./routes/unavailableDates');
 const usersRoutes = require('./routes/users');
 const petsRoutes = require('./routes/pets');
 const notificationsRoutes = require('./routes/notifications');
+const authRoutes = require('./routes/auth');
 
 // Database configuration
 // Import database connection
@@ -86,7 +87,7 @@ app.use('/api/services', servicesRoutes);
 app.use('/api/bookings', bookingsRoutes);
 app.use('/api/calendar', calendarRoutes);
 app.use('/api/dashboard', dashboardRoutes);
-
+app.use('/api/auth', authRoutes);
 app.use('/api/unavailable-dates', unavailableDatesRoutes);
 app.use('/api/users', usersRoutes);
 app.use('/api/pets', petsRoutes);

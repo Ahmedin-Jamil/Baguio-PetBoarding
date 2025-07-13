@@ -29,16 +29,9 @@ const schemas = {
     query('booking_id').optional().isInt().withMessage('Invalid booking ID format')
   ],
   
-  userRegistration: [
-    body('firstName').isString().trim().notEmpty().withMessage('First name is required'),
-    body('lastName').isString().trim().notEmpty().withMessage('Last name is required'),
-    body('email').isEmail().normalizeEmail().withMessage('Invalid email address'),
-    body('password')
-      .isLength({ min: 8 }).withMessage('Password must be at least 8 characters')
-      .matches(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/)
-      .withMessage('Password must contain at least one uppercase letter, one lowercase letter, one number and one special character'),
-    body('phone').matches(/^[+]?[(]?[0-9]{3}[)]?[-\s.]?[0-9]{3}[-\s.]?[0-9]{4,6}$/).withMessage('Invalid phone number'),
-    body('address').optional().isString().trim()
+  adminLogin: [
+    body('username').isString().trim().notEmpty().withMessage('Username is required'),
+    body('password').isString().notEmpty().withMessage('Password is required')
   ],
   userLogin: [
     body('email').isEmail().normalizeEmail().withMessage('Invalid email address'),

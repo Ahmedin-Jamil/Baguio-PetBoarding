@@ -26,22 +26,37 @@ async function initializeDatabase() {
     await client.connect();
     console.log('✅ Connected to PostgreSQL server');
 
-    // Create Users table
-    console.log('👉 Creating users table...');
+    // Drop and recreate Admin table
+    console.log('👉 Dropping admin table...');
+    await client.query('DROP TABLE IF EXISTS admin CASCADE;');
+    
+    console.log('👉 Creating admin table...');
     await client.query(`
-      CREATE TABLE IF NOT EXISTS users (
-        user_id SERIAL PRIMARY KEY,
-        email VARCHAR(255) UNIQUE NOT NULL,
+      CREATE TABLE admin (
+        admin_id SERIAL PRIMARY KEY,
+        username VARCHAR(100) UNIQUE NOT NULL,
         password VARCHAR(255) NOT NULL,
-        first_name VARCHAR(100),
-        last_name VARCHAR(100),
-        phone_number VARCHAR(20),
-        address TEXT,
-        role VARCHAR(20) DEFAULT 'user',
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-        reset_token VARCHAR(255),
-        reset_token_expiry TIMESTAMP
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+    console.log('✅ Admin table created');
+
+    // Drop and recreate Guests table
+    console.log('👉 Dropping guests table...');
+    await client.query('DROP TABLE IF EXISTS guests CASCADE;');
+    
+    console.log('👉 Creating guests table...');
+    await client.query(`
+      CREATE TABLE guests (
+        guest_id SERIAL PRIMARY KEY,
+        first_name VARCHAR(100) NOT NULL,
+        last_name VARCHAR(100) NOT NULL,
+        email VARCHAR(255),
+        phone VARCHAR(20) NOT NULL,
+        address TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
     console.log('✅ Users table created');
@@ -67,7 +82,7 @@ async function initializeDatabase() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS pets (
         pet_id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(user_id),
+        guest_id INTEGER REFERENCES guests(guest_id),
         pet_name VARCHAR(100) NOT NULL,
         pet_type VARCHAR(50) NOT NULL,
         breed VARCHAR(100),
@@ -88,7 +103,7 @@ async function initializeDatabase() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS bookings (
         booking_id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(user_id),
+        guest_id INTEGER REFERENCES guests(guest_id),
         pet_id INTEGER REFERENCES pets(pet_id),
         service_id INTEGER REFERENCES services(service_id),
         booking_date DATE NOT NULL,
@@ -125,7 +140,7 @@ async function initializeDatabase() {
       CREATE TABLE IF NOT EXISTS reviews (
         review_id SERIAL PRIMARY KEY,
         booking_id INTEGER REFERENCES bookings(booking_id),
-        user_id INTEGER REFERENCES users(user_id),
+        guest_id INTEGER REFERENCES guests(guest_id),
         rating INTEGER CHECK (rating >= 1 AND rating <= 5),
         comment TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -139,7 +154,7 @@ async function initializeDatabase() {
     await client.query(`
       CREATE TABLE IF NOT EXISTS notifications (
         notification_id SERIAL PRIMARY KEY,
-        user_id INTEGER REFERENCES users(user_id),
+        guest_id INTEGER REFERENCES guests(guest_id),
         title VARCHAR(255) NOT NULL,
         message TEXT NOT NULL,
         type VARCHAR(50),

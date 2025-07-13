@@ -16,6 +16,5 @@ const formatDateString = (dateString) => {
 // Export the pool and formatDateString for use in other files
 module.exports = {
   pool,
-  testConnection,
   formatDateString
 };
