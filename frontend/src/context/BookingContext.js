@@ -125,7 +125,7 @@ function toCamelCase(obj) {
         'Content-Type': 'application/json',
       };
 
-      const response = await fetch(`${API_URL}/api/bookings`, { headers });
+      const response = await fetch(`${API_URL}/api/bookings`, { headers, credentials: 'include' });
 
       if (!response.ok) {
         console.log(`error fetching from ${API_URL}`);
@@ -773,6 +773,7 @@ function toCamelCase(obj) {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify(finalPayload),
       });
 
@@ -859,6 +860,7 @@ function toCamelCase(obj) {
       
       // Use the exact endpoint structure from the backend routes
       const response = await fetch(`${API_URL}/api/bookings/${bookingId}/status`, {
+        credentials: 'include',
         method: 'PATCH',  // Backend expects PATCH method
         headers: {
           'Content-Type': 'application/json'
@@ -988,6 +990,7 @@ function toCamelCase(obj) {
 
       // Call backend API (DELETE)
       const response = await fetch(`${API_URL}/api/unavailable-dates/${dateString}`, {
+        credentials: 'include',
         method: 'DELETE',
         headers
       });
