@@ -45,8 +45,10 @@ const config = {
       }
     },
     cors: {
-      origin: process.env.FRONTEND_URL || 'https://baguio-pet-boarding.com',
-      credentials: true
+      origin: ['https://baguio-pet-boarding.com', 'https://www.baguio-pet-boarding.com', 'http://localhost:3002'],
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
     },
     security: {
       jwtSecret: process.env.JWT_SECRET,
