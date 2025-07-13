@@ -1,24 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql2/promise');
-require('dotenv').config();
+const { pool } = require('../config/db');
 const { validateParams, validateQuery, schemas } = require('../middleware/validation');
-
-// Database connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'pet_hotel',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
 
 // Get all available services with current slot availability
 router.get('/', async (req, res) => {
   try {
-    const [services] = await pool.query(`
+    const { rows: services } = await pool.query(`
       SELECT 
         s.service_id,
         s.service_name,
@@ -36,7 +24,7 @@ router.get('/', async (req, res) => {
           service_id,
           COUNT(*) as booked_count
         FROM bookings 
-        WHERE booking_date = CURDATE() 
+        WHERE booking_date = CURRENT_DATE 
         AND status IN ('pending', 'confirmed')
         GROUP BY service_id
       ) booked_today ON s.service_id = booked_today.service_id
@@ -68,7 +56,7 @@ router.get('/availability/:date', validateParams(schemas.dateParam), async (req,
       return res.status(400).json({ message: 'Invalid date format. Please use YYYY-MM-DD' });
     }
 
-    const [services] = await pool.query(`
+    const { rows: services } = await pool.query(`
       SELECT 
         s.service_id,
         s.service_name,
@@ -112,7 +100,7 @@ router.get('/calendar-availability/:date', validateParams(schemas.dateParam), as
       return res.status(400).json({ message: 'Invalid date format. Please use YYYY-MM-DD' });
     }
     
-    const [availability] = await pool.query(`
+    const { rows: availability } = await pool.query(`
       SELECT 
         date,
         is_available,
@@ -162,7 +150,7 @@ router.get('/calendar-availability', validateQuery(schemas.dateRange), async (re
       return res.status(400).json({ message: 'Invalid date format. Please use YYYY-MM-DD' });
     }
     
-    const [availability] = await pool.query(`
+    const { rows: availability } = await pool.query(`
       SELECT 
         date,
         is_available,
