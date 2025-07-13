@@ -367,14 +367,7 @@ async function testConnection() {
     console.log('Successfully connected to Supabase PostgreSQL database');
     client.release();
 
-    // Run test query
-    console.log('Testing database operations...');
-    const testResult = await testQuery();
-    if (testResult) {
-      console.log('All database tests passed!');
-    } else {
-      console.log('Database tests failed!');
-    }
+    // Skipping testQuery to avoid log noise
 
     return true;
   } catch (error) {
