@@ -11,9 +11,9 @@ console.log('Database configuration:', {
 });
 
 const pool = new Pool({
-  host: process.env.SUPABASE_HOST || 'aws-0-us-east-2.pooler.supabase.com',
+  host: process.env.SUPABASE_HOST,
   port: parseInt(process.env.SUPABASE_PORT || '6543', 10),
-  user: process.env.SUPABASE_USER || 'postgres.nhylzkcpdxznpwkutxjs',
+  user: process.env.SUPABASE_USER,
   password: process.env.SUPABASE_PASSWORD,
   database: process.env.SUPABASE_DATABASE || 'postgres',
   ssl: {
