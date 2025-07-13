@@ -800,6 +800,11 @@ app.use(actuator());
 // API documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
+// Health check endpoint for Render
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'healthy', timestamp: new Date().toISOString() });
+});
+
 // Redis cache middleware
 const cacheMiddleware = async (req, res, next) => {
   if (!redisClient || req.method !== 'GET') return next();
