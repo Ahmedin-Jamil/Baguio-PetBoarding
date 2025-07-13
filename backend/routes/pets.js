@@ -1,15 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql2/promise');
-const dbConfig = require('../config/dbConfig');
-let pool;
-
-function getPool() {
-  if (!pool) {
-    pool = mysql.createPool(dbConfig);
-  }
-  return pool;
-}
+const { pool } = require('../config/db');
 
 // POST /api/pets/find - Find pet by name, type, and user_id
 router.post('/find', async (req, res) => {
@@ -19,9 +10,8 @@ router.post('/find', async (req, res) => {
     return res.status(400).json({ message: 'Pet name, type, and user_id are required' });
   }
   try {
-    const pool = getPool();
-    const [rows] = await pool.query(
-      'SELECT * FROM pets WHERE pet_name = ? AND pet_type = ? AND user_id = ? LIMIT 1',
+    const { rows } = await pool.query(
+      'SELECT * FROM pets WHERE pet_name = $1 AND pet_type = $2 AND user_id = $3 LIMIT 1',
       [name, type, user_id]
     );
     if (rows.length > 0) {
@@ -44,13 +34,12 @@ router.post('/', async (req, res) => {
   }
   
   try {
-    const pool = getPool();
-    const [result] = await pool.query(
-      'INSERT INTO pets (user_id, pet_name, pet_type, breed, special_instructions, medical_conditions, emergency_contact) VALUES (?, ?, ?, ?, ?, ?, ?)',
+    const { rows: [result] } = await pool.query(
+      'INSERT INTO pets (user_id, pet_name, pet_type, breed, special_instructions, medical_conditions, emergency_contact) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING *',
       [user_id, name, type, breed || '', special_instructions || '', medical_conditions || '', emergency_contact || '']
     );
     return res.json({ 
-      id: result.insertId, 
+      id: result.pet_id, 
       user_id, 
       pet_name: name, 
       pet_type: type, 

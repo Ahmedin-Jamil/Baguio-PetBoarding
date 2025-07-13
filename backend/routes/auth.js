@@ -4,24 +4,13 @@
  */
 const express = require('express');
 const router = express.Router();
-const mysql = require('mysql2/promise');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
 const { validate, schemas } = require('../middleware/validation');
 const { verifyToken, generateToken } = require('../middleware/auth');
 const passwordService = require('../services/passwordService');
-
-// Database connection pool
-const pool = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || '',
-  database: process.env.DB_NAME || 'pet_boarding',
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
-});
+const { pool } = require('../config/db');
 
 /**
  * @route   POST /api/auth/register
