@@ -1,12 +1,21 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-const pool = new Pool({
+// Log environment variables (without sensitive data)
+console.log('Database configuration:', {
   host: process.env.SUPABASE_HOST,
-  port: process.env.SUPABASE_PORT || 6543,
+  port: process.env.SUPABASE_PORT,
   user: process.env.SUPABASE_USER,
-  password: process.env.SUPABASE_PASSWORD,
   database: process.env.SUPABASE_DATABASE,
+  ssl: true
+});
+
+const pool = new Pool({
+  host: process.env.SUPABASE_HOST || 'aws-0-us-east-2.pooler.supabase.com',
+  port: parseInt(process.env.SUPABASE_PORT || '6543', 10),
+  user: process.env.SUPABASE_USER || 'postgres.nhylzkcpdxznpwkutxjs',
+  password: process.env.SUPABASE_PASSWORD,
+  database: process.env.SUPABASE_DATABASE || 'postgres',
   ssl: {
     rejectUnauthorized: false,
     sslmode: 'require'
