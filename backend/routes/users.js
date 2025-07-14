@@ -1,12 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../config/database'); // Standardize DB connection
+const { pool } = require('../config/db'); // Standardize DB connection
 
 // POST /api/users/find - Find user by email or phone (validation removed)
 router.post('/find', async (req, res) => {
   const { email, phone } = req.body;
   try {
-    const [rows] = await pool.query('SELECT * FROM users WHERE email = ? OR phone = ? LIMIT 1', [email || null, phone || null]);
+    const { rows } = await pool.query('SELECT * FROM users WHERE email = $1 OR phone = $2 LIMIT 1', [email || null, phone || null]);
     if (rows.length > 0) {
       return res.json(rows[0]);
     } else {
@@ -32,11 +32,11 @@ router.post('/', async (req, res) => {
   }
 
   try {
-    const [result] = await pool.query(
-      'INSERT INTO users (first_name, last_name, email, phone, address) VALUES (?, ?, ?, ?, ?)',
+    const { rows: [result] } = await pool.query(
+      'INSERT INTO users (first_name, last_name, email, phone, address) VALUES ($1, $2, $3, $4, $5) RETURNING *',
       [first_name, last_name, email, phone, address || null]
     );
-    return res.json({ id: result.id, first_name, last_name, email, phone, address });
+    return res.json({ id: result.user_id, first_name, last_name, email, phone, address });
   } catch (err) {
     console.error('User creation error:', err);
     res.status(500).json({

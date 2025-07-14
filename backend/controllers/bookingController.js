@@ -261,9 +261,9 @@ async function createBooking(req, res) {
     console.log('3. Looking up service:', bookingData.service_id || bookingData.service_type);
     let serviceRows;
     if (bookingData.service_id) {
-      [serviceRows] = await pool.query('SELECT * FROM services WHERE service_id = ?', [bookingData.service_id]);
+      ({ rows: serviceRows } = await pool.query('SELECT * FROM services WHERE service_id = $1', [bookingData.service_id]));
     } else {
-      [serviceRows] = await pool.query('SELECT * FROM services WHERE service_type = ?', [bookingData.service_type]);
+      ({ rows: serviceRows } = await pool.query('SELECT * FROM services WHERE service_type = $1', [bookingData.service_type]));
     }
     console.log('4. Service lookup result:', serviceRows);
     if (serviceRows.length === 0) {

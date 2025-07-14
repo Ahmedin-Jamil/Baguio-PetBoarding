@@ -18,21 +18,19 @@ router.get('/', async (req, res) => {
         s.price_cat,
         s.duration_hours,
         s.max_slots,
-        s.service_type,
+        s.service_type::text,
         sc.category_name,
-        COALESCE(booked_today.booked_count, 0) as booked_slots
+        COALESCE(
+          (SELECT COUNT(*)
+           FROM bookings b
+           WHERE b.service_id = s.service_id
+           AND b.start_date <= CURRENT_DATE
+           AND (b.end_date >= CURRENT_DATE OR b.end_date IS NULL)
+           AND b.status::text IN ('pending', 'confirmed')
+          ), 0
+        ) as booked_slots
       FROM services s
       JOIN service_categories sc ON s.category_id = sc.category_id
-      LEFT JOIN (
-        SELECT 
-          bs.service_id,
-          COUNT(*) as booked_count
-        FROM booking_services bs
-        JOIN bookings b ON b.booking_id = bs.booking_id
-        WHERE b.start_date <= CURRENT_DATE AND b.end_date >= CURRENT_DATE
-        AND b.status IN ('pending', 'confirmed')
-        GROUP BY bs.service_id
-      ) booked_today ON s.service_id = booked_today.service_id
       ORDER BY sc.category_name, s.service_name
     `);
     
@@ -72,21 +70,18 @@ router.get('/availability/:date', validateParams(schemas.dateParam), async (req,
         s.price_cat,
         s.duration_hours,
         s.max_slots,
-        s.service_type,
+        s.service_type::text,
         sc.category_name,
-        COALESCE(active_bookings.booked_count, 0) as booked_slots
+        COALESCE(
+          (SELECT COUNT(*)
+           FROM bookings b
+           WHERE b.service_id = s.service_id
+           AND $1 BETWEEN b.start_date AND COALESCE(b.end_date, b.start_date)
+           AND b.status::text IN ('pending', 'confirmed')
+          ), 0
+        ) as booked_slots
       FROM services s
       JOIN service_categories sc ON s.category_id = sc.category_id
-      LEFT JOIN (
-        SELECT 
-          bs.service_id,
-          COUNT(*) as booked_count
-        FROM booking_services bs
-        JOIN bookings b ON b.booking_id = bs.booking_id
-        WHERE $1 BETWEEN b.start_date AND b.end_date
-        AND b.status IN ('pending', 'confirmed')
-        GROUP BY bs.service_id
-      ) active_bookings ON s.service_id = active_bookings.service_id
       ORDER BY sc.category_name, s.service_name
     `, [date]);
     

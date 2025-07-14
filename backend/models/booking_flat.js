@@ -26,11 +26,12 @@ async function getBookings(options = {}) {
     const where = [];
     const params = [];
 
-    if (status)      { where.push('b.status = ?');          params.push(status); }
-    if (serviceType)  { where.push('s.service_type = ?');    params.push(serviceType); }
-    if (roomType)     { where.push('b.room_type = ?');       params.push(roomType); }
-    if (startDate)    { where.push('b.start_date >= ?');     params.push(formatDateString(startDate)); }
-    if (endDate)      { where.push('b.end_date <= ?');       params.push(formatDateString(endDate)); }
+    let paramIndex = 1;
+    if (status)      { where.push(`b.status = $${paramIndex}`);          params.push(status); paramIndex++; }
+    if (serviceType)  { where.push(`s.service_type = $${paramIndex}`);    params.push(serviceType); paramIndex++; }
+    if (roomType)     { where.push(`b.room_type = $${paramIndex}`);       params.push(roomType); paramIndex++; }
+    if (startDate)    { where.push(`b.start_date >= $${paramIndex}`);     params.push(formatDateString(startDate)); paramIndex++; }
+    if (endDate)      { where.push(`b.end_date <= $${paramIndex}`);       params.push(formatDateString(endDate)); paramIndex++; }
 
     const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
     const offset   = (page - 1) * limit;
@@ -41,7 +42,7 @@ async function getBookings(options = {}) {
       LEFT JOIN services s ON b.service_id = s.service_id
       ${whereSql}
       ORDER BY ${sortBy} ${sortDir}
-      LIMIT ? OFFSET ?`;
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
 
     const countQuery = `
       SELECT COUNT(*) AS total
@@ -49,9 +50,9 @@ async function getBookings(options = {}) {
       LEFT JOIN services s ON b.service_id = s.service_id
       ${whereSql}`;
 
-    const [rows]      = await pool.query(dataQuery, [...params, limit, offset]);
-    const [countRows] = await pool.query(countQuery, params);
-    const total       = countRows[0].total;
+    const { rows } = await pool.query(dataQuery, [...params, limit, offset]);
+    const { rows: countRows } = await pool.query(countQuery, params);
+    const total = parseInt(countRows[0].total, 10);
 
     return {
       success: true,
@@ -77,9 +78,9 @@ async function getBookingById(id) {
       SELECT b.*, s.service_name, s.service_type
       FROM bookings b
       LEFT JOIN services s ON b.service_id = s.service_id
-      WHERE b.booking_id = ?`;
+      WHERE b.booking_id = $1`;
 
-    const [rows] = await pool.query(query, [id]);
+    const { rows } = await pool.query(query, [id]);
     if (rows.length === 0) {
       return { success: false, message: 'Booking not found', timestamp: new Date().toISOString() };
     }
@@ -104,22 +105,22 @@ async function countBookingsByServiceAndRoom(date, serviceType, roomType) {
         .filter(([id, info]) => info.type === 'overnight' && info.roomType === roomType.toLowerCase())
         .map(([id]) => parseInt(id, 10));
       if (serviceIds.length === 0) return 0;
-      query       = `SELECT COUNT(*) AS count FROM bookings b JOIN services s ON b.service_id = s.service_id WHERE s.service_type = ? AND b.start_date = ? AND b.service_id IN (${serviceIds.join(',')}) AND b.status NOT IN ('completed','cancelled','no-show')`;
+      query       = `SELECT COUNT(*) AS count FROM bookings b JOIN services s ON b.service_id = s.service_id WHERE s.service_type = $1 AND b.start_date = $2 AND b.service_id IN (${serviceIds.join(',')}) AND b.status NOT IN ('completed','cancelled','no-show')`;
       queryParams = [serviceType, formattedDate];
     } else if (serviceType === 'grooming' && roomType) {
       const serviceIds = Object.entries(SERVICE_TYPE_MAP)
         .filter(([id, info]) => info.type === 'grooming' && info.roomType === roomType.toLowerCase())
         .map(([id]) => parseInt(id, 10));
       if (serviceIds.length === 0) return 0;
-      query       = `SELECT COUNT(*) AS count FROM bookings b JOIN services s ON b.service_id = s.service_id WHERE s.service_type = ? AND b.start_date = ? AND b.service_id IN (${serviceIds.join(',')}) AND b.status NOT IN ('completed','cancelled','no-show')`;
+      query       = `SELECT COUNT(*) AS count FROM bookings b JOIN services s ON b.service_id = s.service_id WHERE s.service_type = $1 AND b.start_date = $2 AND b.service_id IN (${serviceIds.join(',')}) AND b.status NOT IN ('completed','cancelled','no-show')`;
       queryParams = [serviceType, formattedDate];
     } else {
-      query       = `SELECT COUNT(*) AS count FROM bookings b JOIN services s ON b.service_id = s.service_id WHERE s.service_type = ? AND b.start_date = ? AND b.status NOT IN ('completed','cancelled','no-show')`;
+      query       = `SELECT COUNT(*) AS count FROM bookings b JOIN services s ON b.service_id = s.service_id WHERE s.service_type = $1 AND b.start_date = $2 AND b.status NOT IN ('completed','cancelled','no-show')`;
       queryParams = [serviceType, formattedDate];
     }
 
-    const [result] = await pool.query(query, queryParams);
-    return result[0].count || 0;
+    const { rows } = await pool.query(query, queryParams);
+    return rows.length ? parseInt(rows[0].count, 10) : 0;
   } catch (error) {
     console.error('Error counting bookings:', error);
     return 0;
@@ -168,13 +169,14 @@ async function createBooking(bookingData) {
       const refBase          = now.toISOString().replace(/[-T:Z.]/g,'').slice(2,14);
       const referenceNumber  = `BPB${refBase}${Math.floor(Math.random()*900+100)}`;
 
-      const { rows: [result] } = await pool.query(
+      const { rows: [inserted] } = await pool.query(
         `INSERT INTO bookings (
           reference_number, owner_first_name, owner_last_name, owner_email, owner_phone, owner_address,
           pet_name, pet_type, breed, gender, date_of_birth, weight_category,
           service_id, room_type, start_date, end_date, start_time, end_time,
           total_amount, special_requests, grooming_type, status
-        ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?, 'pending')`,
+        ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21, 'pending')
+        RETURNING booking_id`,
         [referenceNumber,
           data.owner_first_name, data.owner_last_name, data.owner_email, data.owner_phone, data.owner_address,
           data.pet_name, data.pet_type, data.breed, data.gender, data.date_of_birth, data.weight_category,
@@ -183,7 +185,7 @@ async function createBooking(bookingData) {
           data.start_time, data.end_time, data.total_amount, data.special_requests, data.grooming_type]
       );
 
-      const bookingId = result.id;
+      const bookingId = inserted.booking_id;
       await pool.query('COMMIT');
 
       return await getBookingById(bookingId);
@@ -207,8 +209,8 @@ async function updateBookingStatus(id, status) {
       return { success: false, message: 'Invalid status value', timestamp: new Date().toISOString() };
     }
 
-    const [result] = await pool.query('UPDATE bookings SET status = ? WHERE booking_id = ?', [status, id]);
-    if (result.affectedRows === 0) {
+    const { rowCount } = await pool.query('UPDATE bookings SET status = $1 WHERE booking_id = $2', [status, id]);
+    if (rowCount === 0) {
       return { success: false, message: 'Booking not found', timestamp: new Date().toISOString() };
     }
 
@@ -234,11 +236,11 @@ async function getBookingSummary(date) {
              SUM(b.total_amount) AS total_revenue
       FROM bookings b
       JOIN services s ON b.service_id = s.service_id
-      WHERE b.start_date = ?
+      WHERE b.start_date = $1
       GROUP BY b.start_date, s.service_id, s.service_name, s.service_type
       ORDER BY s.service_type, s.service_name`;
 
-    const [rows] = await pool.query(query, [formatDateString(date)]);
+    const { rows } = await pool.query(query, [formatDateString(date)]);
 
     rows.forEach(item => {
       const serviceInfo = SERVICE_TYPE_MAP[item.service_id];

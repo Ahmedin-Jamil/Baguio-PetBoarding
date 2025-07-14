@@ -36,35 +36,25 @@ pool.connect((err, client, release) => {
 
 // Test query function
 async function testQuery() {
-  const client = await pool.connect();
   try {
-    // Try to create a test table
-    await client.query(`
-      CREATE TABLE IF NOT EXISTS test_connection (
-        id SERIAL PRIMARY KEY,
-        test_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-      )
-    `);
-
-    // Insert a test record
-    await client.query('INSERT INTO test_connection DEFAULT VALUES');
-
-    // Query the record
-    const result = await client.query('SELECT * FROM test_connection ORDER BY id DESC LIMIT 1');
-    console.log('Test query result:', result.rows[0]);
-
-    // Clean up - drop the test table
-    await client.query('DROP TABLE test_connection');
-    
-    console.log('Database operations test successful!');
+    const { rows } = await pool.query('SELECT NOW()');
+    console.log('Database time:', rows[0].now);
     return true;
   } catch (error) {
     console.error('Error in test query:', error);
     return false;
-  } finally {
-    client.release();
   }
 }
 
-// Export pool and test function
-module.exports = { pool, testQuery };
+// Helper to format a Date or string to YYYY-MM-DD
+function formatDateString(date) {
+  if (!date) return null;
+  const d = typeof date === 'string' ? new Date(date) : date;
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+// Export pool and helpers
+module.exports = { pool, testQuery, formatDateString };

@@ -23,14 +23,14 @@ router.post('/unavailable', verifyToken, isAdmin, validate(commonValidations.cal
       message: 'Invalid date format. Please use YYYY-MM-DD' });
     }
     
-    const [result] = await pool.query(`
+    await pool.query(`
       INSERT INTO calendar_availability (date, is_available, reason, notes, updated_by)
-      VALUES (?, FALSE, ?, ?, ?) 
-      ON DUPLICATE KEY UPDATE
+      VALUES ($1, FALSE, $2, $3, $4)
+      ON CONFLICT (date) DO UPDATE SET
         is_available = FALSE,
-        reason = VALUES(reason),
-        notes = VALUES(notes),
-        updated_by = VALUES(updated_by),
+        reason = EXCLUDED.reason,
+        notes = EXCLUDED.notes,
+        updated_by = EXCLUDED.updated_by,
         updated_at = CURRENT_TIMESTAMP
     `, [date, reason || null, notes || null, adminId || null]);
     
@@ -68,14 +68,14 @@ router.post('/available', verifyToken, isAdmin, validate(commonValidations.calen
       message: 'Invalid date format. Please use YYYY-MM-DD' });
     }
     
-    const [result] = await pool.query(`
+    await pool.query(`
       INSERT INTO calendar_availability (date, is_available, reason, notes, updated_by)
-      VALUES (?, TRUE, NULL, NULL, ?) 
-      ON DUPLICATE KEY UPDATE
+      VALUES ($1, TRUE, NULL, NULL, $2)
+      ON CONFLICT (date) DO UPDATE SET
         is_available = TRUE,
         reason = NULL,
         notes = NULL,
-        updated_by = VALUES(updated_by),
+        updated_by = EXCLUDED.updated_by,
         updated_at = CURRENT_TIMESTAMP
     `, [date, adminId || null]);
     
@@ -113,14 +113,14 @@ router.get('/', validateQuery(schemas.dateRange), async (req, res) => {
       message: 'Invalid date format. Please use YYYY-MM-DD' });
     }
     
-    const [availability] = await pool.query(`
+    const { rows: availability } = await pool.query(`
       SELECT 
         date,
         is_available,
         reason,
         notes
       FROM calendar_availability
-      WHERE date BETWEEN ? AND ?
+      WHERE date BETWEEN $1 AND $2
       ORDER BY date
     `, [startDate, endDate]);
     
@@ -150,7 +150,7 @@ router.post('/unavailable', async (req, res) => {
   }
   try {
     await pool.query(
-      'INSERT INTO calendar_availability (date, is_available, reason) VALUES (?, 0, ?)',
+      'INSERT INTO calendar_availability (date, is_available, reason) VALUES ($1, FALSE, $2)',
       [date, reason || null]
     );
     res.json({ success: true, message: 'Date marked as unavailable.' });

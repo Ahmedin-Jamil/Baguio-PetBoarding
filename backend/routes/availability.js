@@ -32,16 +32,21 @@ router.get('/', async (req, res) => {
     return res.status(400).json({ success: false, message: 'Date query parameter is required.' });
   }
   try {
-    const [results] = await pool.query(
-      `SELECT s.service_id, s.service_name, s.slots AS total_slots,
-       (s.slots - COALESCE(b.booked_count, 0)) AS available_slots
-       FROM services s
-       LEFT JOIN (
-         SELECT service_id, COUNT(*) AS booked_count
-         FROM bookings
-         WHERE booking_date = ? AND status IN ('pending', 'confirmed')
-         GROUP BY service_id
-       ) b ON s.service_id = b.service_id`,
+    const { rows: results } = await pool.query(
+      `SELECT 
+        s.service_id, 
+        s.service_name, 
+        s.max_slots AS total_slots,
+        (s.max_slots - COALESCE(
+          (SELECT COUNT(*)
+           FROM bookings b
+           WHERE b.service_id = s.service_id
+           AND b.start_date = $1
+           AND b.status::text IN ('pending', 'confirmed')
+          ), 0
+        )) AS available_slots
+      FROM services s
+      ORDER BY s.service_name`,
       [date]
     );
     res.json({ success: true, data: results });

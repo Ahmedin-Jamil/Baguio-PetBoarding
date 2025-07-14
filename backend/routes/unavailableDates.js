@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const pool = require('../db');
+const { pool } = require('../config/db');
 
 // GET /api/unavailable-dates - Get all unavailable dates (admin blocks and more)
+// Uses calendar_availability table where is_available = FALSE
 router.get('/', async (req, res) => {
   try {
     // Use unavailable_dates as the source of truth
-    const [rows] = await pool.query('SELECT date, reason FROM unavailable_dates');
+    const { rows } = await pool.query('SELECT date, reason FROM calendar_availability WHERE is_available = FALSE');
     res.json({ unavailableDates: rows });
   } catch (error) {
     console.error('Error fetching unavailable dates:', error);
@@ -20,8 +21,8 @@ router.post('/', async (req, res) => {
     const { date, reason } = req.body;
     if (!date) return res.status(400).json({ message: 'Date is required' });
     await pool.query(
-      `INSERT INTO unavailable_dates (date, reason) VALUES (?, ?)
-       ON DUPLICATE KEY UPDATE reason=VALUES(reason)`,
+      `INSERT INTO calendar_availability (date, is_available, reason) VALUES ($1, FALSE, $2)
+       ON CONFLICT (date) DO UPDATE SET is_available = FALSE, reason = EXCLUDED.reason`,
       [date, reason || null]
     );
     res.status(201).json({ message: 'Date marked as unavailable.' });
@@ -39,7 +40,7 @@ router.delete('/:date', async (req, res) => {
     if (!date.match(/^\d{4}-\d{2}-\d{2}$/)) {
       return res.status(400).json({ message: 'Invalid date format. Use YYYY-MM-DD.' });
     }
-    await pool.query('DELETE FROM unavailable_dates WHERE date = ?', [date]);
+    await pool.query('UPDATE calendar_availability SET is_available = TRUE, reason = NULL WHERE date = $1', [date]);
     res.json({ success: true, message: 'Date marked as available.' });
   } catch (error) {
     console.error('Error marking date as available:', error);

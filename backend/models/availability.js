@@ -50,35 +50,36 @@ async function getRoomAvailability(date) {
     // Count bookings by service_id for overnight services
     // We need to check if the requested date is occupied by any booking
     // This includes the checkout date to prevent double booking
-    const [overnightBookings] = await pool.query(
+    const { rows: overnightBookings } = await pool.query(
       `SELECT b.service_id, COUNT(*) as count FROM bookings b
        JOIN services s ON b.service_id = s.service_id
        WHERE s.service_type = 'overnight' 
-       AND b.start_date <= ? AND b.end_date >= ?
-       AND b.status NOT IN ('completed', 'cancelled', 'no-show')
+       AND b.start_date <= $1 AND b.end_date >= $1
+       AND b.status::text NOT IN ('completed', 'cancelled', 'no-show')
        GROUP BY b.service_id`,
-      [formattedDate, formattedDate]
+      [formattedDate]
     );
     
     // Count bookings for daycare - using the same overlap logic as overnight
-    const [daycareBookings] = await pool.query(
+    const { rows: daycareBookingsRows } = await pool.query(
       `SELECT COUNT(*) as count FROM bookings b
        JOIN services s ON b.service_id = s.service_id
        WHERE s.service_type = 'daycare' 
-       AND b.start_date <= ? AND b.end_date >= ? 
-       AND b.status NOT IN ('completed', 'cancelled', 'no-show')`,
-      [formattedDate, formattedDate]
+       AND b.start_date <= $1 AND b.end_date >= $1 
+       AND b.status::text NOT IN ('completed', 'cancelled', 'no-show')`,
+      [formattedDate]
     );
+    const daycareBookings = daycareBookingsRows;
     
     // Count grooming bookings by service_id - using the same overlap logic as other services
-    const [groomingBookings] = await pool.query(
+    const { rows: groomingBookings } = await pool.query(
       `SELECT b.service_id, COUNT(*) as count FROM bookings b
        JOIN services s ON b.service_id = s.service_id
        WHERE s.service_type = 'grooming' 
-       AND b.start_date <= ? AND b.end_date >= ?
-       AND b.status NOT IN ('completed', 'cancelled', 'no-show')
+       AND b.start_date <= $1 AND b.end_date >= $1
+       AND b.status::text NOT IN ('completed', 'cancelled', 'no-show')
        GROUP BY b.service_id`,
-      [formattedDate, formattedDate]
+      [formattedDate]
     );
     
     // Calculate availability
@@ -185,12 +186,11 @@ async function checkServiceAvailability(date, serviceType, roomType, serviceId) 
     }
     
     // Check if date is blocked in the unavailable_dates table
-    const [blockedDates] = await pool.query(
-      `SELECT * FROM unavailable_dates 
-       WHERE date = ? 
-       AND (service_type = ? OR service_type IS NULL)
-       AND (room_type = ? OR room_type IS NULL)`,
-      [formattedDate, serviceType, roomType]
+    const { rows: blockedDates } = await pool.query(
+      `SELECT * FROM calendar_availability 
+       WHERE date = $1 
+       AND is_available = FALSE`,
+      [formattedDate]
     );
     
     // If date is blocked, set availability to false
@@ -239,12 +239,11 @@ async function getUnavailableDates(serviceType, roomType, startDate, endDate) {
     const formattedEnd = formatDateString(endDate);
     
     // Query manually blocked dates from unavailable_dates table
-    const [blockedDates] = await pool.query(
-      `SELECT date, service_type, room_type, reason FROM unavailable_dates 
-       WHERE date BETWEEN ? AND ? 
-       AND (service_type = ? OR service_type IS NULL)
-       AND (room_type = ? OR room_type IS NULL)`,
-      [formattedStart, formattedEnd, serviceType, roomType]
+    const { rows: blockedDates } = await pool.query(
+      `SELECT date, reason FROM calendar_availability 
+       WHERE date BETWEEN $1 AND $2 
+       AND is_available = FALSE`,
+      [formattedStart, formattedEnd]
     );
     
     // Calculate unavailable dates based on capacity
