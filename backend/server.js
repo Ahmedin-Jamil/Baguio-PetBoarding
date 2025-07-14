@@ -69,10 +69,11 @@ app.use(cors({
   origin: [
     'https://baguio-pet-boarding.com',
     'https://www.baguio-pet-boarding.com',
-    'http://localhost:3002'
+    'http://localhost:3002',
+    'http://localhost:3003'
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
@@ -81,10 +82,11 @@ app.options('*', cors({
   origin: [
     'https://baguio-pet-boarding.com',
     'https://www.baguio-pet-boarding.com',
-    'http://localhost:3002'
+    'http://localhost:3002',
+    'http://localhost:3003'
   ],
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 }));
 
@@ -93,7 +95,8 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     'https://baguio-pet-boarding.com',
     'https://www.baguio-pet-boarding.com',
-    'http://localhost:3002'
+    'http://localhost:3002',
+    'http://localhost:3003'
   ];
   const origin = req.headers.origin;
   
@@ -102,7 +105,7 @@ app.use((req, res, next) => {
   }
   
   res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
   
   if (req.method === 'OPTIONS') {

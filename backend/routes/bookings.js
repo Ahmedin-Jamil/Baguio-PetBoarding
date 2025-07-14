@@ -300,13 +300,13 @@ router.get('/', async (req, res) => {
     const queryParams = [];
     
     if (date) {
-      query += ' WHERE b.start_date = ?';
+      query += ' WHERE b.start_date = $1';
       queryParams.push(date);
     }
     
     query += ' ORDER BY b.created_at DESC';
     
-    const [bookings] = await pool.query(query, queryParams);
+    const { rows: bookings } = await pool.query(query, queryParams);
     
     res.json({
       success: true,
@@ -325,40 +325,32 @@ router.get('/', async (req, res) => {
 // Get all pending bookings (admin)
 router.get('/pending', async (req, res) => {
   try {
-    const [bookings] = await pool.query(`
+    const { rows: bookings } = await pool.query(`
       SELECT 
         b.booking_id,
         COALESCE(b.reference_number, 'BPB' || TO_CHAR(b.created_at, 'YYMMDD') || LPAD(b.booking_id::text, 4, '0')) as reference_number,
-        TO_CHAR(b.start_date, 'YYYY-MM-DD') as start_date,
-        TO_CHAR(b.end_date, 'YYYY-MM-DD') as end_date,
+        CONCAT(b.owner_first_name, ' ', b.owner_last_name) AS owner_name,
+        b.owner_email,
+        b.owner_phone,
+        b.pet_name,
+        b.pet_type::text,
+        b.weight_category::text,
+        b.start_date,
+        b.end_date,
         b.start_time,
         b.end_time,
-        b.status,
-
+        b.room_type::text,
+        b.status::text,
         b.special_requests,
-        b.room_type,
-
-        TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
-        b.owner_first_name as first_name,
-        b.owner_last_name as last_name,
-        b.owner_email as email,
-        b.owner_phone as phone,
-        b.owner_address as address,
-        b.pet_name,
-        b.pet_type,
-        b.weight_category,
-        b.breed,
-        b.gender AS sex,
-
+        b.created_at,
+        b.updated_at,
         s.service_name,
-        s.service_type,
+        s.service_type::text,
         sc.category_name
       FROM bookings b
-      
-      
       JOIN services s ON b.service_id = s.service_id
       JOIN service_categories sc ON s.category_id = sc.category_id
-      WHERE b.status = 'pending'
+      WHERE b.status::text = 'pending'
       ORDER BY b.created_at ASC
     `);
     
@@ -394,33 +386,25 @@ router.get('/search', async (req, res) => {
       SELECT 
         b.booking_id,
         COALESCE(b.reference_number, 'BPB' || TO_CHAR(b.created_at, 'YYMMDD') || LPAD(b.booking_id::text, 4, '0')) as reference_number,
-        TO_CHAR(b.start_date, 'YYYY-MM-DD') as start_date,
-        TO_CHAR(b.end_date, 'YYYY-MM-DD') as end_date,
+        CONCAT(b.owner_first_name, ' ', b.owner_last_name) AS owner_name,
+        b.owner_email,
+        b.owner_phone,
+        b.pet_name,
+        b.pet_type::text,
+        b.weight_category::text,
+        b.start_date,
+        b.end_date,
         b.start_time,
         b.end_time,
-        b.status,
-
+        b.room_type::text,
+        b.status::text,
         b.special_requests,
-        b.room_type,
-
-        TO_CHAR(b.created_at, 'YYYY-MM-DD HH24:MI:SS') as created_at,
-        b.owner_first_name as first_name,
-        b.owner_last_name as last_name,
-        b.owner_email as email,
-        b.owner_phone as phone,
-        b.owner_address as address,
-        b.pet_name,
-        b.pet_type,
-        b.weight_category,
-        b.breed,
-        b.gender AS sex,
-
+        b.created_at,
+        b.updated_at,
         s.service_name,
-        s.service_type,
+        s.service_type::text,
         sc.category_name
       FROM bookings b
-      
-      
       JOIN services s ON b.service_id = s.service_id
       JOIN service_categories sc ON s.category_id = sc.category_id
       WHERE 
@@ -429,20 +413,18 @@ router.get('/search', async (req, res) => {
     const params = [];
     
     if (email) {
-      query += 'b.owner_email = ?';
+      query += ' b.owner_email = $1';
       params.push(email);
     } else {
       // Remove # prefix if present and convert to uppercase
       const cleanRef = reference_number.replace(/^#/, '').toUpperCase();
-      // Allow matching multiple related bookings created in the same transaction (same prefix, last 4 digits differ)
-      const refPrefix = cleanRef.length > 4 ? cleanRef.slice(0, -4) : cleanRef;
-      query += '((b.reference_number = $1) OR (b.reference_number LIKE $2) OR (\'BPB\' || TO_CHAR(b.created_at, \'YYMMDD\') || LPAD(b.booking_id::text, 4, \'0\') = $3) )';
-      params.push(cleanRef, `${refPrefix}%`, cleanRef);
+      query += ' b.reference_number = $1';
+      params.push(cleanRef);
     }
     
     query += ' ORDER BY b.created_at DESC';
     
-    const [bookings] = await pool.query(query, params);
+    const { rows: bookings } = await pool.query(query, params);
     
     if (bookings.length === 0) {
       return res.status(404).json({
@@ -469,510 +451,8 @@ router.get('/search', async (req, res) => {
   }
 });
 
-// Create a new booking (public endpoint)
-// Legacy route retained for reference but now mounted under /legacy to avoid duplication
-router.post('/legacy', async (req, res) => {
-  console.log('Incoming booking payload:', JSON.stringify(req.body, null, 2));
-
-  // Validate booking data
-  const validationErrors = validateBookingData(req.body);
-  if (validationErrors.length > 0) {
-      return res.status(400).json({
-          success: false,
-          error: 'Validation failed',
-          details: validationErrors
-      });
-  }
-
-  // Normalize booking data
-  const normalizedBooking = normalizeBookingData(req.body);
-  console.log('Normalized booking data:', JSON.stringify(normalizedBooking, null, 2));
-  
-  // Use the normalized data for further processing
-  req.body = { ...req.body, ...normalizedBooking };
-  
-  // Set default service_id for cats if not provided
-  if ((req.body.pet_type?.toLowerCase() === 'cat' || req.body.guest_pet?.pet_type?.toLowerCase() === 'cat') && !req.body.service_id) {
-    req.body.service_id = 1; // Assuming 1 is the boarding service ID
-    console.log('Setting default service_id=1 for cat booking');
-  }
-  
-
-  try {
-    // Skip the UTC ISO conversion - we'll use simple YYYY-MM-DD format
-    console.log('Using normalized dates and times:', {
-      booking_date: req.body.booking_date,
-      end_date: req.body.end_date,
-      start_time: req.body.start_time,
-      end_time: req.body.end_time
-    });
-  } catch (dateErr) {
-    connection.release();
-    return res.status(400).json({ success: false, message: 'Date processing error', error: dateErr.message });
-  }
-
-  try {
-    await pool.query('BEGIN');
-
-    const {
-      ownerName,
-      ownerEmail,
-      ownerPhone,
-      petName,
-      petType,
-      petBreed,
-      service_id,
-      booking_date,
-      end_date,
-      start_time,
-      end_time,
-      special_requests,
-      status,
-      room_type,
-      user_id,
-      pet_id,
-      // Support for camelCase from frontend
-      serviceId,
-      bookingDate,
-      endDate,
-      startTime,
-      endTime,
-      specialRequests,
-      roomType,
-      userId: userIdCamel,
-      petId: petIdCamel
-    } = req.body;
-
-    const finalServiceId = service_id || serviceId;
-    const finalBookingDate = booking_date || bookingDate;
-    const finalEndDate = end_date || endDate;
-    const finalStartTime = start_time || startTime;
-    const finalEndTime = end_time || endTime;
-
-    const finalSpecialRequests = special_requests || specialRequests;
-    
-    // Check if this is a daycare booking
-    const isDaycareBooking = finalServiceId === 4;
-    console.log('Is daycare booking:', isDaycareBooking);
-    
-    // Add a daycare flag to the booking data
-    const is_daycare = isDaycareBooking ? 1 : 0;
-    
-    // Get and normalize the room type
-    let finalRoomTypeRaw = room_type || roomType;
-    console.log('Raw room type value:', finalRoomTypeRaw);
-    
-    // For daycare service, use a default room type since column can't be NULL
-    if (isDaycareBooking) {
-      finalRoomTypeRaw = 'Deluxe Room'; // Default to Deluxe Room for daycare
-      console.log('Setting default room type for daycare booking (DB requires non-NULL value)');
-    }
-    
-    // For non-daycare services, validate room type
-    if (!isDaycareBooking && (!finalRoomTypeRaw || 
-        !['deluxe room', 'premium room', 'executive room'].includes(finalRoomTypeRaw.toLowerCase()))) {
-      await pool.query('ROLLBACK');
-      return res.status(400).json({ 
-        success: false, 
-        message: 'Invalid or missing room type. Must be one of: Deluxe Room, Premium Room, Executive Room.' 
-      });
-    }
-    
-    // Final normalized room type
-    const finalRoomType = finalRoomTypeRaw;
-    console.log('Final room type:', finalRoomType);
-    let finalUserId = user_id || userIdCamel;
-    let finalPetId = pet_id || petIdCamel;
-
-    if (!finalServiceId || !finalBookingDate) {
-      await pool.query('ROLLBACK');
-      return res.status(400).json({
-        success: false,
-        message: 'Missing required booking information: serviceId and bookingDate are required.'
-      });
-    }
-
-    // Variables for guest information - will be used for both user creation and booking record
-    let ownerNameFinal = ownerName || req.body.owner_name || '';
-    let ownerEmailFinal = ownerEmail || req.body.owner_email || '';
-    let ownerPhoneFinal = ownerPhone || req.body.owner_phone || '';
-    let ownerAddressFinal = req.body.owner_address || null;
-    let guestFirstName = '';
-    let guestLastName = '';
-    
-    // If still missing, check for guest_user object (from frontend)
-    if ((!ownerNameFinal || !ownerEmailFinal) && req.body.guest_user) {
-      ownerNameFinal = req.body.guest_user.name || req.body.guest_user.first_name || '';
-      ownerEmailFinal = req.body.guest_user.email || '';
-      ownerPhoneFinal = req.body.guest_user.phone || '';
-      ownerAddressFinal = req.body.guest_user.address || ownerAddressFinal;
-    }
-    
-    // Split the owner name into first and last name
-    if (ownerNameFinal) {
-      const nameParts = ownerNameFinal.split(' ');
-      guestFirstName = nameParts[0] || 'Guest';
-      guestLastName = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
-    } else {
-      // Ensure we have a non-null first name
-      guestFirstName = 'Guest';
-    }
-    
-    // Handle guest user creation if no user_id is provided
-    if (!finalUserId) {
-      const { rows: [existingUser] } = await pool.query('SELECT user_id FROM users WHERE email = $1', [ownerEmailFinal]);
-      if (existingUser.length > 0) {
-        finalUserId = existingUser[0].user_id;
-      } else if (ownerEmailFinal) {
-        // Only create a user if we have an email
-        const { rows: [newUser] } = await pool.query(
-          'INSERT INTO users (first_name, last_name, email, phone, address) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-          [guestFirstName, guestLastName, ownerEmailFinal, ownerPhoneFinal || null, ownerAddressFinal]
-        );
-        finalUserId = newUser.id;
-      }
-    }
-
-    // Handle guest pet creation if no pet_id is provided
-    if (!finalPetId) {
-      // Check for guest_pet object from frontend
-      let petNameFinal = petName || '';
-      let petTypeFinal = petType || 'Dog';
-      let petBreedFinal = petBreed || null;
-      let petGender = null;
-      
-      // Extract pet data from guest_pet if available
-      if (req.body.guest_pet) {
-        petNameFinal = req.body.guest_pet.pet_name || req.body.guest_pet.petName || petNameFinal;
-        petTypeFinal = req.body.guest_pet.pet_type || req.body.guest_pet.petType || petTypeFinal;
-        petBreedFinal = req.body.guest_pet.breed || petBreedFinal;
-        petGender = req.body.guest_pet.gender || req.body.guest_pet.sex || null;
-      } else {
-        // Extract from direct fields if guest_pet is not available
-        petNameFinal = petName || req.body.pet_name || '';
-        petTypeFinal = petType || req.body.pet_type || 'Dog';
-        petBreedFinal = petBreed || req.body.breed || null;
-        petGender = req.body.pet_gender || req.body.petGender || req.body.gender || req.body.sex || null;
-      }
-      
-      // Use a default pet name if none is provided
-      if (!petNameFinal) {
-        petNameFinal = `${petTypeFinal} of ${ownerNameFinal || 'Guest'}`;
-      }
-      
-      // Normalize pet type to ensure we handle both dogs and cats
-      let normalizedPetType = 'Dog'; // Default
-      if (petTypeFinal) {
-        const petTypeLower = petTypeFinal.toLowerCase();
-        if (petTypeLower.includes('cat')) {
-          normalizedPetType = 'Cat';
-        } else if (petTypeLower.includes('dog')) {
-          normalizedPetType = 'Dog';
-        } else {
-          // Keep whatever was provided if not clearly a dog or cat
-          normalizedPetType = petTypeFinal;
-        }
-      }
-      
-      console.log('Creating new pet with data:', {
-        user_id: finalUserId,
-        pet_name: petNameFinal,
-        pet_type: normalizedPetType,
-        breed: petBreedFinal,
-        gender: petGender,
-      });
-      
-      try {
-        // Normalize gender to match database ENUM
-        let normalizedGender = null;
-        if (petGender) {
-          const g = petGender.toString().trim().toLowerCase();
-          if (/^(m|male)$/.test(g)) {
-            normalizedGender = 'Male';
-          } else if (/^(f|female)$/.test(g)) {
-            normalizedGender = 'Female';
-          }
-        }
-
-        console.log('Using normalized gender:', normalizedGender);
-
-        const { rows: [newPet] } = await pool.query(
-          'INSERT INTO pets (user_id, pet_name, pet_type, breed, gender) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-          [finalUserId, petNameFinal, normalizedPetType, petBreedFinal, normalizedGender]
-        );
-        finalPetId = newPet.id;
-        console.log(`Created new pet with ID: ${finalPetId}`);
-      } catch (petError) {
-        console.error('Error creating pet:', petError);
-        await pool.query('ROLLBACK');
-        return res.status(500).json({
-          success: false,
-          message: 'Failed to create pet record',
-          error: process.env.NODE_ENV === 'development' ? petError.message : 'Database Error'
-        });
-      }
-    }
-
-    // Parse dates and ensure they're in local noon time
-    let startDateFormatted, endDateFormatted;
-    
-    try {
-      // If dates are already in YYYY-MM-DD format, use them directly
-      if (/^\d{4}-\d{2}-\d{2}$/.test(finalBookingDate)) {
-        startDateFormatted = finalBookingDate;
-      } else {
-        // Create date at local noon to avoid timezone issues
-        const startDate = new Date(finalBookingDate);
-        startDateFormatted = `${startDate.getFullYear()}-${String(startDate.getMonth() + 1).padStart(2, '0')}-${String(startDate.getDate()).padStart(2, '0')}`;
-      }
-
-      // Handle end date similarly
-      const endDateToUse = finalEndDate || finalBookingDate;
-      if (/^\d{4}-\d{2}-\d{2}$/.test(endDateToUse)) {
-        endDateFormatted = endDateToUse;
-      } else {
-        const endDate = new Date(endDateToUse);
-        endDateFormatted = `${endDate.getFullYear()}-${String(endDate.getMonth() + 1).padStart(2, '0')}-${String(endDate.getDate()).padStart(2, '0')}`;
-      }
-
-      if (!startDateFormatted || !endDateFormatted) {
-        throw new Error('Failed to parse dates');
-      }
-    } catch (err) {
-      console.error('Error parsing dates:', err);
-      await pool.query('ROLLBACK');
-      return res.status(400).json({
-        success: false,
-        message: 'Invalid date format. Please provide dates in YYYY-MM-DD format.'
-      });
-    }
-
-    // Log all values before insert to verify
-    console.log('About to insert booking with values:', {
-      userId: finalUserId,
-      petId: finalPetId,
-      serviceId: finalServiceId,
-      isDaycare: is_daycare,
-      startDate: startDateFormatted,
-      endDate: endDateFormatted,
-      startTime: finalStartTime || '09:00',
-      endTime: finalEndTime || '17:00',
-
-      specialRequests: finalSpecialRequests || '',
-      status: status || 'pending',
-      roomType: finalRoomType
-    });
-    
-    // Set guest information for the booking record if this was a guest booking
-    let guestEmail = null;
-    let guestPhone = null;
-    let guestAddress = null;
-    
-    // Check if this was a guest booking (we have the original guest info)
-    if (!user_id && !userIdCamel) {
-      guestEmail = ownerEmailFinal;
-      guestPhone = ownerPhoneFinal;
-      guestAddress = ownerAddressFinal;
-    }
-    
-
-    const { rows: [newBooking] } = await pool.query(
-      `INSERT INTO bookings (
-        user_id, pet_id, service_id, start_date, end_date, 
-        start_time, end_time, special_requests, status, room_type,
-        guest_first_name, guest_last_name, guest_email, guest_phone, guest_address,
-        is_daycare
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-      [
-        finalUserId,
-        finalPetId,
-        finalServiceId,
-        startDateFormatted,
-        endDateFormatted,
-        to24HourFormat(finalStartTime) || '09:00:00',
-        to24HourFormat(finalEndTime) || '17:00:00',
-        finalSpecialRequests || '',
-        status || 'pending',
-        finalRoomType, // This must be the normalized value
-        guestFirstName,
-        guestLastName,
-        guestEmail,
-        guestPhone,
-        guestAddress,
-        is_daycare // Add daycare flag to clearly distinguish service type
-      ]
-    );
-
-    // Generate a unique reference number using timestamp and booking ID
-    const now = new Date();
-    // Use compact date format YYMMDD
-    const dateStr = now.getFullYear().toString().slice(2) + 
-                  (now.getMonth() + 1).toString().padStart(2, '0') + 
-                  now.getDate().toString().padStart(2, '0');
-    
-    // Use timestamp (last 5 digits) and booking ID for guaranteed uniqueness
-    const timestamp = Date.now().toString().slice(-5);
-    const referenceNumber = `BPB${dateStr}${timestamp}${String(newBooking.id).padStart(4, '0')}`;
-    
-    // Define a variable to hold the reference number (whether it's stored in DB or not)
-    let finalReferenceNumber = referenceNumber;
-    
-    // Check if reference_number column exists in the database
-    try {
-      // Try to update with reference number if the column exists
-      await pool.query(
-        'UPDATE bookings SET reference_number = $1 WHERE booking_id = $2',
-        [referenceNumber, newBooking.id]
-      );
-      
-      console.log(`Generated reference number: ${referenceNumber} for booking ID: ${newBooking.id}`);
-    } catch (refError) {
-      // If column doesn't exist, just log and continue
-      if (refError.code === '42703') { // PostgreSQL undefined_column error
-        console.log('Reference number column does not exist. Skipping reference number generation.');
-      } else {
-        // If it's another error, log it but don't fail the booking
-        console.error('Error setting reference number:', refError.message);
-      }
-    }
-
-    await pool.query('COMMIT');
-
-    // Fetch details for email confirmation
-    const { rows: [userData] } = await pool.query('SELECT * FROM users WHERE user_id = $1', [finalUserId]);
-    const { rows: [petData] } = await pool.query('SELECT * FROM pets WHERE pet_id = $1', [finalPetId]);
-    const { rows: [serviceData] } = await pool.query('SELECT service_name FROM services WHERE service_id = $1', [finalServiceId]);
-
-    try {
-      await emailService.sendBookingConfirmation({
-        user: userData[0],
-        pet: petData[0],
-        bookingDate: finalBookingDate,
-        startTime: finalStartTime,
-        endTime: finalEndTime,
-
-        specialRequests: finalSpecialRequests,
-        serviceName: serviceData[0]?.service_name || 'Pet Service',
-        bookingId: newBooking.id,
-        room_type: finalRoomType
-      });
-      console.log('Booking confirmation email sent successfully.');
-    } catch (emailError) {
-      console.error('Failed to send booking confirmation email:', emailError);
-    }
-
-    // Fetch the complete booking data to return to the client
-    const { rows: [bookingData] } = await pool.query(
-      `SELECT b.*, 
-        b.owner_first_name, b.owner_last_name, b.owner_email, b.owner_phone, b.owner_address,
-        b.pet_name, b.pet_type, b.breed, b.gender AS sex
-      FROM bookings b
-      
-      
-      WHERE b.booking_id = ?`,
-      [newBooking.id]
-    );
-
-    res.status(201).json({
-      success: true,
-      message: 'Booking created successfully!',
-      data: {
-        ...bookingData[0],
-        bookingId: newBooking.id,
-        reference_number: finalReferenceNumber,
-        status: 'pending'
-      }
-    });
-  } catch (error) {
-    console.error('Error creating booking:', error);
-    res.status(500).json({
-      success: false,
-      message: 'An error occurred while creating the booking.',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal Server Error'
-    });
-  }
-});
-
-// Generic booking update (e.g., extend booking end date, update times, room type)
-router.patch('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    const {
-      end_date,
-      start_date,
-      start_time,
-      end_time,
-      room_type,
-      special_requests
-    } = req.body;
-
-    // Build dynamic SET clause safely
-    const fields = [];
-    const params = [];
-
-    if (end_date) {
-      // Expecting YYYY-MM-DD format (validated on frontend)
-      fields.push('end_date = ?');
-      params.push(end_date);
-    }
-    if (start_date) {
-      fields.push('start_date = ?');
-      params.push(start_date);
-    }
-    if (start_time) {
-      fields.push('start_time = ?');
-      params.push(start_time);
-    }
-    if (end_time) {
-      fields.push('end_time = ?');
-      params.push(end_time);
-    }
-    if (room_type) {
-      fields.push('room_type = ?');
-      params.push(room_type);
-    }
-    if (special_requests !== undefined) {
-      fields.push('special_requests = ?');
-      params.push(special_requests);
-    }
-
-    if (fields.length === 0) {
-      return res.status(400).json({
-        success: false,
-        message: 'No valid fields provided for update.'
-      });
-    }
-
-    // Add booking_id param for WHERE clause
-    params.push(id);
-
-    const updateQuery = `UPDATE bookings SET ${fields.join(', ')} WHERE booking_id = ?`;
-    const [result] = await pool.query(updateQuery, params);
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ success: false, message: 'Booking not found' });
-    }
-
-    // Return the updated booking record
-    const [updatedRows] = await pool.query(
-      'SELECT * FROM bookings WHERE booking_id = ?',
-      [id]
-    );
-
-    return res.json({
-      success: true,
-      message: 'Booking updated successfully',
-      data: updatedRows[0]
-    });
-  } catch (error) {
-    console.error('Error updating booking:', error);
-    return res.status(500).json({
-      success: false,
-      message: 'Error updating booking',
-      error: process.env.NODE_ENV === 'development' ? error.message : 'Internal server error'
-    });
-  }
-});
+// Update booking end date or status
+// If request body contains newEndDate (and not status), treat as extension
 
 // Update booking status (confirm, cancel, complete)
 router.patch('/:id/status', async (req, res) => {
@@ -998,11 +478,11 @@ router.patch('/:id/status', async (req, res) => {
         query = `
           UPDATE bookings 
           SET 
-            status = 'confirmed',
-            confirmed_by = ?,
+            status = 'confirmed'::booking_status,
+            confirmed_by = $1,
             confirmed_at = CURRENT_TIMESTAMP,
-            admin_notes = ?
-          WHERE booking_id = ?
+            admin_notes = $2
+          WHERE booking_id = $3
         `;
         params = [adminId || null, notes || null, id];
         break;
@@ -1011,12 +491,12 @@ router.patch('/:id/status', async (req, res) => {
         query = `
           UPDATE bookings 
           SET 
-            status = 'cancelled',
-            cancelled_by = ?,
+            status = 'cancelled'::booking_status,
+            cancelled_by = $1,
             cancelled_at = CURRENT_TIMESTAMP,
-            cancellation_reason = ?,
-            admin_notes = ?
-          WHERE booking_id = ?
+            cancellation_reason = $2,
+            admin_notes = $3
+          WHERE booking_id = $4
         `;
         params = [adminId || null, reason || null, notes || null, id];
         break;
@@ -1025,10 +505,10 @@ router.patch('/:id/status', async (req, res) => {
         query = `
           UPDATE bookings 
           SET 
-            status = 'completed',
+            status = 'completed'::booking_status,
             completed_at = CURRENT_TIMESTAMP,
-            admin_notes = ?
-          WHERE booking_id = ?
+            admin_notes = $1
+          WHERE booking_id = $2
         `;
         params = [notes || null, id];
         break;
@@ -1037,16 +517,16 @@ router.patch('/:id/status', async (req, res) => {
         query = `
           UPDATE bookings 
           SET 
-            status = ?,
-            admin_notes = ?
-          WHERE booking_id = ?
+            status = $1::booking_status,
+            admin_notes = $2
+          WHERE booking_id = $3
         `;
         params = [status, notes || null, id];
     }
     
-    const [result] = await pool.query(query, params);
+    const { rowCount } = await pool.query(query, params);
     
-    if (result.affectedRows === 0) {
+    if (rowCount === 0) {
       return res.status(404).json({
         success: false, 
         message: 'Booking not found'
@@ -1056,11 +536,18 @@ router.patch('/:id/status', async (req, res) => {
     // Send status update email (non-blocking)
     (async () => {
       try {
-        const [bookingRows] = await pool.query(`
-          SELECT b.*, s.service_name
+        const { rows: bookingRows } = await pool.query(`
+          SELECT 
+            b.*,
+            b.status::text as status,
+            b.room_type::text as room_type,
+            b.pet_type::text as pet_type,
+            b.weight_category::text as weight_category,
+            s.service_name,
+            s.service_type::text as service_type
           FROM bookings b
           LEFT JOIN services s ON b.service_id = s.service_id
-          WHERE b.booking_id = ?`, [id]);
+          WHERE b.booking_id = $1`, [id]);
         if (bookingRows.length) {
           await emailService.sendBookingStatusUpdate({ ...bookingRows[0], status });
         }
@@ -1075,59 +562,6 @@ router.patch('/:id/status', async (req, res) => {
       message: `Booking status updated to ${status} successfully`,
       data: { status }
     });
-
-    /* Legacy block commented out during flattened-schema migration
-    const [bookingDetails] = await pool.query(`
-      SELECT 
-        b.*, 
-        b.room_type,
-        u.first_name, u.last_name, u.email, u.phone,
-
-// Get booking details for the email
-const [bookingDetails] = await pool.query(`
-  SELECT 
-    b.booking_id,
-    b.start_date,
-    b.end_date,
-    b.start_time,
-    b.end_time,
-    b.special_requests,
-    b.status,
-    b.room_type,
-    b.pet_name,
-    s.service_name
-  FROM bookings b
-  
-  
-  LEFT JOIN services s ON b.service_id = s.service_id
-  WHERE b.booking_id = ?
-`, [id]);
-
-// ...
-
-// Get updated booking details for response
-const [updatedBooking] = await pool.query(
-  `SELECT 
-    b.booking_id,
-    DATE_FORMAT(b.start_date, '%Y-%m-%d') as start_date,
-    DATE_FORMAT(b.end_date, '%Y-%m-%d') as end_date,
-    b.status,
-    b.room_type,
-    b.pet_name,
-    s.service_name
-  FROM bookings b
-  
-  
-  LEFT JOIN services s ON b.service_id = s.service_id
-  WHERE b.booking_id = ?`,
-  [id]
-);
-
-// ...
-      message: 'Booking extended successfully',
-      data: updatedBooking[0]
-     });
-*/
   } catch (error) {
     console.error('Error updating booking status:', error);
     res.status(500).json({
@@ -1138,5 +572,87 @@ const [updatedBooking] = await pool.query(
   }
 });
 
+
+// Extend booking end date
+router.patch('/:id/extend', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { newEndDate, adminId, notes } = req.body;
+
+    if (!newEndDate) {
+      return res.status(400).json({
+        success: false,
+        message: 'newEndDate is required'
+      });
+    }
+
+    // Ensure newEndDate is later than current end_date
+    const { rows: currentRows } = await pool.query('SELECT end_date FROM bookings WHERE booking_id = $1', [id]);
+    if (!currentRows.length) {
+      return res.status(404).json({ success:false, message:'Booking not found'});
+    }
+    const currentEnd = currentRows[0].end_date;
+    if (currentEnd && new Date(newEndDate) <= currentEnd) {
+      return res.status(400).json({ success:false, message:'New end date must be after current end date'});
+    }
+
+    await pool.query(`UPDATE bookings SET end_date = $1, admin_notes = COALESCE($2, admin_notes), updated_at = CURRENT_TIMESTAMP WHERE booking_id = $3`, [newEndDate, notes || null, id]);
+
+    // Optionally send email about extension (non-blocking)
+    (async () => {
+      try {
+        const { rows: bRows } = await pool.query('SELECT * FROM bookings WHERE booking_id = $1', [id]);
+        if (bRows.length) {
+          await emailService.sendBookingStatusUpdate({ ...bRows[0], status:'extended' });
+        }
+      } catch(e){ console.error('Email error after extend', e);}  
+    })();
+
+    return res.json({ success:true, message:'Booking extended successfully', data:{ newEndDate } });
+  } catch (err) {
+    console.error('Error extending booking:', err);
+    res.status(500).json({ success:false, message:'Error extending booking', error: process.env.NODE_ENV==='development'? err.message:'Internal server error' });
+  }
+});
+
+// Generic update route – currently supports extending booking via end_date
+router.patch('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { end_date, newEndDate, notes, adminId } = req.body;
+
+    const targetEnd = newEndDate || end_date;
+    if (!targetEnd) {
+      return res.status(400).json({ success:false, message:'Nothing to update' });
+    }
+
+    // Check booking exists and current end_date
+    const { rows: currentRows } = await pool.query('SELECT end_date FROM bookings WHERE booking_id = $1', [id]);
+    if (!currentRows.length) {
+      return res.status(404).json({ success:false, message:'Booking not found'});
+    }
+    const currentEnd = currentRows[0].end_date;
+    if (currentEnd && new Date(targetEnd) <= currentEnd) {
+      return res.status(400).json({ success:false, message:'New end date must be after current end date'});
+    }
+
+    await pool.query(`UPDATE bookings SET end_date = $1, admin_notes = COALESCE($2, admin_notes), updated_at = CURRENT_TIMESTAMP WHERE booking_id = $3`, [targetEnd, notes || null, id]);
+
+    // non-blocking email
+    (async () => {
+      try {
+        const { rows: bRows } = await pool.query('SELECT * FROM bookings WHERE booking_id = $1', [id]);
+        if (bRows.length) {
+          await emailService.sendBookingStatusUpdate({ ...bRows[0], status:'extended' });
+        }
+      } catch(e){ console.error('Email error after generic extend', e);}  
+    })();
+
+    return res.json({ success:true, message:'Booking updated', data:{ end_date: targetEnd } });
+  } catch(err){
+    console.error('Error updating booking:', err);
+    res.status(500).json({ success:false, message:'Error updating booking', error: process.env.NODE_ENV==='development'? err.message:'Internal server error' });
+  }
+});
 
 module.exports = router;
