@@ -3,7 +3,7 @@ import ReCAPTCHA from 'react-google-recaptcha';
 import '../assets/logo192.png';
 import './SplashScreen.css';
 
-const SITE_KEY = '6LfPX00rAAAAAKPN3lU7gs9pQ25a-8QLsmgXziHr';
+const SITE_KEY = process.env.REACT_APP_RECAPTCHA_SITE_KEY || 'missing_site_key';
 
 const SplashScreen = ({ onFinished, displayTime = 5000 }) => {
   const [fadeOut, setFadeOut] = useState(false);
