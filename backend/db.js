@@ -10,93 +10,86 @@ console.log('Database configuration:', {
   ssl: true
 });
 
-// Create a wrapper around pg.Pool to handle retries and connection management
-class RetryPool {
-  constructor() {
-    this.createPool();
-    this.retryCount = 0;
-    this.maxRetries = 3;
-  }
+// Create a connection pool with retry capabilities
+const pool = new Pool({
+  host: process.env.SUPABASE_HOST,
+  port: parseInt(process.env.SUPABASE_PORT || '5432', 10),
+  user: process.env.SUPABASE_USER,
+  password: process.env.SUPABASE_PASSWORD,
+  database: process.env.SUPABASE_DATABASE || 'postgres',
+  ssl: {
+    rejectUnauthorized: false,
+    sslmode: 'require'
+  },
+  // Aggressive settings for Supabase's pooler
+  max: 3, // Keep pool small
+  min: 0, // Allow pool to empty
+  idleTimeoutMillis: 5000, // Release connections after 5s idle
+  connectionTimeoutMillis: 3000, // Fail fast on connection attempts
+  allowExitOnIdle: true,
+  statement_timeout: 5000, // 5s query timeout
+  query_timeout: 5000,
+  keepAlive: true,
+  keepAliveInitialDelayMillis: 5000
+});
 
-  createPool() {
-    this.pool = new Pool({
-      host: process.env.SUPABASE_HOST,
-      port: parseInt(process.env.SUPABASE_PORT || '5432', 10),
-      user: process.env.SUPABASE_USER,
-      password: process.env.SUPABASE_PASSWORD,
-      database: process.env.SUPABASE_DATABASE || 'postgres',
-      ssl: {
-        rejectUnauthorized: false,
-        sslmode: 'require'
-      },
-      // Aggressive settings for Supabase's pooler
-      max: 3, // Keep pool small
-      min: 0, // Allow pool to empty
-      idleTimeoutMillis: 5000, // Release connections after 5s idle
-      connectionTimeoutMillis: 3000, // Fail fast on connection attempts
-      allowExitOnIdle: true,
-      statement_timeout: 5000, // 5s query timeout
-      query_timeout: 5000,
-      keepAlive: true,
-      keepAliveInitialDelayMillis: 5000
-    });
+// Wrap the pool's query method with retry logic
+const originalQuery = pool.query.bind(pool);
+pool.query = async function retryingQuery(text, params) {
+  const maxRetries = 3;
+  let lastError;
 
-    // Handle pool errors
-    this.pool.on('error', (err) => {
-      console.error('Unexpected pool error:', err.message);
-      if (this.retryCount < this.maxRetries) {
-        this.retryCount++;
-        console.log(`Attempting pool recovery (attempt ${this.retryCount}/${this.maxRetries})`);
-        this.recoverPool();
-      }
-    });
-  }
-
-  async recoverPool() {
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      await this.pool.end();
+      const result = await originalQuery(text, params);
+      return result;
     } catch (err) {
-      console.error('Error while closing pool:', err.message);
-    }
-    this.createPool();
-  }
-
-  // Wrapper for query with retries
-  async query(text, params) {
-    let lastError;
-    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
-      try {
-        const result = await this.pool.query(text, params);
-        this.retryCount = 0; // Reset retry count on success
-        return result;
-      } catch (err) {
-        lastError = err;
-        console.error(`Query attempt ${attempt}/${this.maxRetries} failed:`, err.message);
-        if (err.code === 'XX000' || err.code === '57P01') {
-          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+      lastError = err;
+      console.error(`Query attempt ${attempt}/${maxRetries} failed:`, err.message);
+      
+      // Only retry on connection-related errors
+      if (err.code === 'XX000' || err.code === '57P01') {
+        if (attempt < maxRetries) {
+          const delay = 1000 * attempt; // Exponential backoff
+          console.log(`Retrying in ${delay}ms...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
           continue;
         }
-        throw err; // Throw immediately for other errors
       }
+      throw err; // Throw immediately for other errors
     }
-    throw lastError;
   }
-}
-
-const pool = new RetryPool();
+  throw lastError;
+};
 
 // Handle unexpected errors on idle clients so the app does not crash
 pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL client error:', err);
 });
 
-// Health check with shorter intervals
+// Health check with shorter intervals and connection recovery
+let consecutiveFailures = 0;
+const maxConsecutiveFailures = 3;
+
 const healthCheck = async () => {
   try {
     await pool.query('SELECT 1');
     console.log('Health check passed');
+    consecutiveFailures = 0; // Reset on success
   } catch (err) {
     console.error('Health check failed:', err.message);
+    consecutiveFailures++;
+    
+    if (consecutiveFailures >= maxConsecutiveFailures) {
+      console.log('Too many consecutive failures, attempting to end and recreate pool...');
+      try {
+        await pool.end();
+        // The next query will create a new connection automatically
+      } catch (endErr) {
+        console.error('Error while ending pool:', endErr.message);
+      }
+      consecutiveFailures = 0; // Reset counter after recovery attempt
+    }
   } finally {
     setTimeout(healthCheck, 5000); // Check every 5 seconds
   }
