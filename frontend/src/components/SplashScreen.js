@@ -9,9 +9,16 @@ const SplashScreen = ({ onFinished, displayTime = 5000 }) => {
   const [fadeOut, setFadeOut] = useState(false);
   const [verified, setVerified] = useState(false);
 
-  const handleCaptchaChange = (value) => {
+  const handleCaptchaChange = async (value) => {
     if (value) {
-      setVerified(true);
+      try {
+        // Optional: Add API call to verify captcha on backend
+        setVerified(true);
+      } catch (error) {
+        console.error('Verification error:', error);
+        // Continue anyway since we're not doing backend verification yet
+        setVerified(true);
+      }
     }
   };
 
