@@ -17,21 +17,22 @@ const SplashScreen = ({ onFinished, displayTime = 5000 }) => {
 
   useEffect(() => {
     if (!verified) return;
-    // Start fade out animation after the specified display time (default: 3 seconds)
+    
+    // Start fade out immediately after verification
     const timer = setTimeout(() => {
       setFadeOut(true);
-    }, displayTime);
+    }, 500); // Small delay for smooth transition
 
-    // Call onFinished callback after fade out animation completes
+    // Call onFinished callback after fade animation
     const completeTimer = setTimeout(() => {
       if (onFinished) onFinished();
-    }, displayTime + 1000); // displayTime + 1s for fade out animation
+    }, 1500); // 1.5s total transition time
 
     return () => {
       clearTimeout(timer);
       clearTimeout(completeTimer);
     };
-  }, [onFinished, displayTime, verified]);
+  }, [onFinished, verified]);
 
   return (
     <div className={`splash-screen ${fadeOut ? 'fade-out' : ''}`}>
