@@ -383,12 +383,10 @@ function toCamelCase(obj) {
     } catch (error) {
       console.error('BookingContext: Error fetching bookings:', error);
       setError(`Failed to fetch bookings: ${error.message}`);
-      // Reset bookings state on error
-      setIsLoading(false);
     } finally {
-
-      return [];
+      setIsLoading(false);
     }
+    return [];
   };
 
   // Add a new booking with user context

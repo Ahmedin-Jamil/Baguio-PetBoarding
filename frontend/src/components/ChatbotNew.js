@@ -187,7 +187,6 @@ const ChatbotNew = ({ isOpen, onClose, onBack }) => {
     else if (lowerTopic.includes('hour') || lowerTopic.includes('time') || lowerTopic.includes('open') || 
              lowerTopic.includes('close') || lowerTopic.includes('day')) {
       questions = [
-  ,
         'Do you offer daycare?'
       ];
     } 

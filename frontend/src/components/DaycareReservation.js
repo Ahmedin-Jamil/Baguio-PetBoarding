@@ -565,7 +565,6 @@ const DaycareReservation = () => {
         },
         numberOfPets: pets.length,
         services: 'Daycare',
-        totalAmount: totalAmount,
         userId: userId
       };
 
