@@ -725,8 +725,7 @@ const handleSubmit = async (e) => {
       },
       roomType: roomType,
       numberOfPets: pets.length,
-      services: 'Overnight',
-      rawBookingResponses: []
+      services: 'Overnight'
     };
     navigate('/confirmation', { state: { bookingData: bookingDataForConfirmation, serviceType: 'overnight' } });
   } catch (error) {
