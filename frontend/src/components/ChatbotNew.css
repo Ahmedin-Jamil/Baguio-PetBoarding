@@ -30,8 +30,9 @@
     right: 12px;
   }
   .chatbot-container {
-    width: 92vw;
-    height: 70vh;
+    width: 85vw;
+    height: 60vh;
+    max-height: 500px;
   }
   .chatbot-header .header-title {
     font-size: 14px;
