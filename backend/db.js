@@ -12,7 +12,7 @@ console.log('Database configuration:', {
 
 const pool = new Pool({
   host: process.env.SUPABASE_HOST,
-  port: parseInt(process.env.SUPABASE_PORT || '6543', 10),
+  port: parseInt(process.env.SUPABASE_PORT || '5432', 10),
   user: process.env.SUPABASE_USER,
   password: process.env.SUPABASE_PASSWORD,
   database: process.env.SUPABASE_DATABASE || 'postgres',
@@ -20,10 +20,15 @@ const pool = new Pool({
     rejectUnauthorized: false,
     sslmode: 'require'
   },
-  max: 10, // Set max pool size
-  idleTimeoutMillis: 30000, // Close idle clients after 30 seconds
-  connectionTimeoutMillis: 2000, // Return an error after 2 seconds if connection could not be established
-  allowExitOnIdle: true // Allow the pool to exit if there are no connections
+  // Pool configuration tuned for Supabase's connection pooler
+  max: 5, // Reduced pool size to prevent overwhelming the pooler
+  idleTimeoutMillis: 1000, // Release idle connections quickly
+  connectionTimeoutMillis: 5000, // Give more time for initial connection
+  allowExitOnIdle: true,
+  statement_timeout: 10000, // 10s query timeout
+  query_timeout: 10000,
+  keepAlive: true, // Enable TCP keepalive
+  keepAliveInitialDelayMillis: 10000 // Start keepalive after 10s
 });
 
 // Handle unexpected errors on idle clients so the app does not crash
@@ -31,22 +36,38 @@ pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL client error:', err);
 });
 
-// Keep the connection pool warm: Ping every 30 seconds (30000 ms) to maintain active connections
-setInterval(async () => {
+// Implement a more robust connection check with exponential backoff
+let pingInterval = 10000; // Start with 10s
+const maxPingInterval = 30000; // Max 30s
+
+const checkConnection = async () => {
   try {
     await pool.query('SELECT 1');
+    // On success, gradually reduce the interval
+    pingInterval = Math.max(10000, pingInterval - 5000);
+    console.log('Connection check successful');
   } catch (err) {
-    console.error('Keep-alive query failed:', err.code || err.message);
-    // On connection error, try to get a fresh client
+    console.error('Connection check failed:', err.code || err.message);
+    // On failure, increase interval exponentially
+    pingInterval = Math.min(maxPingInterval, pingInterval * 1.5);
+    
     try {
+      // Try to get a fresh client
       const client = await pool.connect();
       await client.query('SELECT 1');
       client.release();
+      console.log('Successfully established new connection');
     } catch (reconnectErr) {
       console.error('Failed to establish new connection:', reconnectErr.code || reconnectErr.message);
     }
+  } finally {
+    // Schedule next check with current interval
+    setTimeout(checkConnection, pingInterval);
   }
-}, 30000);
+};
+
+// Start connection checking
+checkConnection();
 
 // Test the connection
 pool.connect((err, client, release) => {
