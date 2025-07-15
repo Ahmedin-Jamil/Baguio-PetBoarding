@@ -24,6 +24,18 @@ const pool = new Pool({
   idleTimeoutMillis: 30000 // Close idle clients after 30 seconds
 });
 
+// Handle unexpected errors on idle clients so the app does not crash
+pool.on('error', (err) => {
+  console.error('Unexpected PostgreSQL client error:', err);
+});
+
+// Keep the connection pool warm: simple ping every minute to avoid Supabase idle disconnects
+setInterval(() => {
+  pool.query('SELECT 1').catch((err) => {
+    console.error('Keep-alive query failed:', err.message);
+  });
+}, 60_000);
+
 // Test the connection
 pool.connect((err, client, release) => {
   if (err) {
