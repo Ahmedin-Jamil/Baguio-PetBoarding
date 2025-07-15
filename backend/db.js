@@ -21,7 +21,8 @@ const pool = new Pool({
     sslmode: 'require'
   },
   max: 10, // Set max pool size
-  idleTimeoutMillis: 30000 // Close idle clients after 30 seconds
+  // Close idle clients immediately so we rely on new sockets each time
+  idleTimeoutMillis: 0
 });
 
 // Handle unexpected errors on idle clients so the app does not crash
@@ -29,12 +30,12 @@ pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL client error:', err);
 });
 
-// Keep the connection pool warm: simple ping every minute to avoid Supabase idle disconnects
+// Keep the connection pool warm: Ping every 4 minutes (240 000 ms) which is safely below Supabase's idle timeouts
 setInterval(() => {
   pool.query('SELECT 1').catch((err) => {
-    console.error('Keep-alive query failed:', err.message);
+    console.error('Keep-alive query failed:', err.code || err.message);
   });
-}, 60_000);
+}, 240_000);
 
 // Test the connection
 pool.connect((err, client, release) => {
