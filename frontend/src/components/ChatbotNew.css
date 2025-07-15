@@ -9,7 +9,7 @@
 
 .chatbot-container {
   width: 320px;
-  height: 520px;
+  height: 440px;
   /* Ensure the container never exceeds the visible area (20px top & bottom margin) */
   max-height: calc(100vh - 40px);
   /* Fallback for very short screens – allow internal scroll instead of clipping */
