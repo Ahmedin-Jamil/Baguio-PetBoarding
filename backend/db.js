@@ -10,64 +10,100 @@ console.log('Database configuration:', {
   ssl: true
 });
 
-const pool = new Pool({
-  host: process.env.SUPABASE_HOST,
-  port: parseInt(process.env.SUPABASE_PORT || '5432', 10),
-  user: process.env.SUPABASE_USER,
-  password: process.env.SUPABASE_PASSWORD,
-  database: process.env.SUPABASE_DATABASE || 'postgres',
-  ssl: {
-    rejectUnauthorized: false,
-    sslmode: 'require'
-  },
-  // Pool configuration tuned for Supabase's connection pooler
-  max: 5, // Reduced pool size to prevent overwhelming the pooler
-  idleTimeoutMillis: 1000, // Release idle connections quickly
-  connectionTimeoutMillis: 5000, // Give more time for initial connection
-  allowExitOnIdle: true,
-  statement_timeout: 10000, // 10s query timeout
-  query_timeout: 10000,
-  keepAlive: true, // Enable TCP keepalive
-  keepAliveInitialDelayMillis: 10000 // Start keepalive after 10s
-});
+// Create a wrapper around pg.Pool to handle retries and connection management
+class RetryPool {
+  constructor() {
+    this.createPool();
+    this.retryCount = 0;
+    this.maxRetries = 3;
+  }
+
+  createPool() {
+    this.pool = new Pool({
+      host: process.env.SUPABASE_HOST,
+      port: parseInt(process.env.SUPABASE_PORT || '5432', 10),
+      user: process.env.SUPABASE_USER,
+      password: process.env.SUPABASE_PASSWORD,
+      database: process.env.SUPABASE_DATABASE || 'postgres',
+      ssl: {
+        rejectUnauthorized: false,
+        sslmode: 'require'
+      },
+      // Aggressive settings for Supabase's pooler
+      max: 3, // Keep pool small
+      min: 0, // Allow pool to empty
+      idleTimeoutMillis: 5000, // Release connections after 5s idle
+      connectionTimeoutMillis: 3000, // Fail fast on connection attempts
+      allowExitOnIdle: true,
+      statement_timeout: 5000, // 5s query timeout
+      query_timeout: 5000,
+      keepAlive: true,
+      keepAliveInitialDelayMillis: 5000
+    });
+
+    // Handle pool errors
+    this.pool.on('error', (err) => {
+      console.error('Unexpected pool error:', err.message);
+      if (this.retryCount < this.maxRetries) {
+        this.retryCount++;
+        console.log(`Attempting pool recovery (attempt ${this.retryCount}/${this.maxRetries})`);
+        this.recoverPool();
+      }
+    });
+  }
+
+  async recoverPool() {
+    try {
+      await this.pool.end();
+    } catch (err) {
+      console.error('Error while closing pool:', err.message);
+    }
+    this.createPool();
+  }
+
+  // Wrapper for query with retries
+  async query(text, params) {
+    let lastError;
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        const result = await this.pool.query(text, params);
+        this.retryCount = 0; // Reset retry count on success
+        return result;
+      } catch (err) {
+        lastError = err;
+        console.error(`Query attempt ${attempt}/${this.maxRetries} failed:`, err.message);
+        if (err.code === 'XX000' || err.code === '57P01') {
+          await new Promise(resolve => setTimeout(resolve, 1000 * attempt));
+          continue;
+        }
+        throw err; // Throw immediately for other errors
+      }
+    }
+    throw lastError;
+  }
+}
+
+const pool = new RetryPool();
 
 // Handle unexpected errors on idle clients so the app does not crash
 pool.on('error', (err) => {
   console.error('Unexpected PostgreSQL client error:', err);
 });
 
-// Implement a more robust connection check with exponential backoff
-let pingInterval = 10000; // Start with 10s
-const maxPingInterval = 30000; // Max 30s
-
-const checkConnection = async () => {
+// Health check with shorter intervals
+const healthCheck = async () => {
   try {
     await pool.query('SELECT 1');
-    // On success, gradually reduce the interval
-    pingInterval = Math.max(10000, pingInterval - 5000);
-    console.log('Connection check successful');
+    console.log('Health check passed');
   } catch (err) {
-    console.error('Connection check failed:', err.code || err.message);
-    // On failure, increase interval exponentially
-    pingInterval = Math.min(maxPingInterval, pingInterval * 1.5);
-    
-    try {
-      // Try to get a fresh client
-      const client = await pool.connect();
-      await client.query('SELECT 1');
-      client.release();
-      console.log('Successfully established new connection');
-    } catch (reconnectErr) {
-      console.error('Failed to establish new connection:', reconnectErr.code || reconnectErr.message);
-    }
+    console.error('Health check failed:', err.message);
   } finally {
-    // Schedule next check with current interval
-    setTimeout(checkConnection, pingInterval);
+    setTimeout(healthCheck, 5000); // Check every 5 seconds
   }
 };
 
-// Start connection checking
-checkConnection();
+// Start health checks
+healthCheck();
 
 // Test the connection
 pool.connect((err, client, release) => {
