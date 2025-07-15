@@ -31,6 +31,12 @@
   animation: pulse 2s infinite alternate, float 6s ease-in-out infinite;
 }
 
+.captcha-wrapper {
+  margin-top: 20px;
+  display: flex;
+  justify-content: center;
+}
+
 .welcome-text {
   margin-bottom: 2rem;
 }
