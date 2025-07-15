@@ -1,97 +1,148 @@
 const { Pool } = require('pg');
 require('dotenv').config();
 
-// Log environment variables (without sensitive data)
+// Log database configuration (without password)
 console.log('Database configuration:', {
   host: process.env.SUPABASE_HOST,
   port: process.env.SUPABASE_PORT,
   user: process.env.SUPABASE_USER,
-  database: process.env.SUPABASE_DATABASE,
+  database: process.env.SUPABASE_DATABASE || 'postgres',
   ssl: true
 });
 
-// Create a connection pool with retry capabilities
-const pool = new Pool({
-  host: process.env.SUPABASE_HOST,
-  port: parseInt(process.env.SUPABASE_PORT || '5432', 10),
-  user: process.env.SUPABASE_USER,
-  password: process.env.SUPABASE_PASSWORD,
-  database: process.env.SUPABASE_DATABASE || 'postgres',
-  ssl: {
-    rejectUnauthorized: false,
-    sslmode: 'require'
-  },
-  // Aggressive settings for Supabase's pooler
-  max: 3, // Keep pool small
-  min: 0, // Allow pool to empty
-  idleTimeoutMillis: 5000, // Release connections after 5s idle
-  connectionTimeoutMillis: 3000, // Fail fast on connection attempts
-  allowExitOnIdle: true,
-  statement_timeout: 5000, // 5s query timeout
-  query_timeout: 5000,
-  keepAlive: true,
-  keepAliveInitialDelayMillis: 5000
-});
+// Connection pool manager
+class ConnectionManager {
+  constructor() {
+    this.activePool = null;
+    this.standbyPool = null;
+    this.isFailingOver = false;
+    this.createPools();
+  }
 
-// Wrap the pool's query method with retry logic
-const originalQuery = pool.query.bind(pool);
-pool.query = async function retryingQuery(text, params) {
-  const maxRetries = 3;
-  let lastError;
+  createPools() {
+    const poolConfig = {
+      host: process.env.SUPABASE_HOST,
+      port: parseInt(process.env.SUPABASE_PORT || '5432', 10),
+      user: process.env.SUPABASE_USER,
+      password: process.env.SUPABASE_PASSWORD,
+      database: process.env.SUPABASE_DATABASE || 'postgres',
+      ssl: {
+        rejectUnauthorized: false,
+        sslmode: 'require'
+      },
+      // Conservative settings
+      max: 2,
+      min: 0,
+      idleTimeoutMillis: 10000,
+      connectionTimeoutMillis: 5000,
+      allowExitOnIdle: true,
+      statement_timeout: 10000,
+      query_timeout: 10000
+    };
 
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      const result = await originalQuery(text, params);
-      return result;
-    } catch (err) {
-      lastError = err;
-      console.error(`Query attempt ${attempt}/${maxRetries} failed:`, err.message);
-      
-      // Only retry on connection-related errors
-      if (err.code === 'XX000' || err.code === '57P01') {
-        if (attempt < maxRetries) {
-          const delay = 1000 * attempt; // Exponential backoff
-          console.log(`Retrying in ${delay}ms...`);
-          await new Promise(resolve => setTimeout(resolve, delay));
-          continue;
-        }
-      }
-      throw err; // Throw immediately for other errors
+    this.activePool = new Pool(poolConfig);
+    this.standbyPool = new Pool(poolConfig);
+
+    // Set up error handlers
+    this.activePool.on('error', err => this.handlePoolError(err, 'active'));
+    this.standbyPool.on('error', err => this.handlePoolError(err, 'standby'));
+  }
+
+  async handlePoolError(err, poolType) {
+    console.error(`${poolType} pool error:`, err.message);
+    if (!this.isFailingOver && poolType === 'active') {
+      await this.failover();
     }
   }
-  throw lastError;
-};
 
-// Handle unexpected errors on idle clients so the app does not crash
-pool.on('error', (err) => {
-  console.error('Unexpected PostgreSQL client error:', err);
-});
+  async failover() {
+    if (this.isFailingOver) return;
+    this.isFailingOver = true;
 
-// Health check with shorter intervals and connection recovery
+    console.log('Initiating failover...');
+    try {
+      // Swap pools
+      const temp = this.activePool;
+      this.activePool = this.standbyPool;
+      this.standbyPool = temp;
+
+      // End old connections
+      try {
+        await this.standbyPool.end();
+      } catch (err) {
+        console.error('Error ending old pool:', err.message);
+      }
+
+      // Create new standby
+      this.standbyPool = new Pool(this.activePool.options);
+      this.standbyPool.on('error', err => this.handlePoolError(err, 'standby'));
+
+      console.log('Failover complete');
+    } catch (err) {
+      console.error('Failover failed:', err.message);
+    } finally {
+      this.isFailingOver = false;
+    }
+  }
+
+  async query(text, params) {
+    const maxRetries = 3;
+    let lastError;
+
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        const result = await this.activePool.query(text, params);
+        return result;
+      } catch (err) {
+        lastError = err;
+        console.error(`Query attempt ${attempt}/${maxRetries} failed:`, err.message);
+
+        if (err.code === 'XX000' || err.code === '57P01') {
+          if (attempt < maxRetries) {
+            const delay = 1000 * Math.pow(2, attempt - 1); // Exponential backoff
+            console.log(`Retrying in ${delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+
+            // Try failover on connection errors
+            if (!this.isFailingOver) {
+              await this.failover();
+            }
+            continue;
+          }
+        }
+        throw err;
+      }
+    }
+    throw lastError;
+  }
+}
+
+const connectionManager = new ConnectionManager();
+
+// Health check with connection validation
 let consecutiveFailures = 0;
 const maxConsecutiveFailures = 3;
 
 const healthCheck = async () => {
   try {
-    await pool.query('SELECT 1');
+    await connectionManager.query('SELECT 1');
     console.log('Health check passed');
-    consecutiveFailures = 0; // Reset on success
+    consecutiveFailures = 0;
   } catch (err) {
     console.error('Health check failed:', err.message);
     consecutiveFailures++;
     
     if (consecutiveFailures >= maxConsecutiveFailures) {
-      console.log('Too many consecutive failures, attempting to end and recreate pool...');
+      console.log('Too many consecutive failures, forcing failover...');
       try {
-        await pool.end();
-        // The next query will create a new connection automatically
-      } catch (endErr) {
-        console.error('Error while ending pool:', endErr.message);
+        await connectionManager.failover();
+      } catch (failoverErr) {
+        console.error('Failover failed:', failoverErr.message);
       }
-      consecutiveFailures = 0; // Reset counter after recovery attempt
+      consecutiveFailures = 0;
     }
   } finally {
-    setTimeout(healthCheck, 5000); // Check every 5 seconds
+    setTimeout(healthCheck, 5000);
   }
 };
 
@@ -99,19 +150,14 @@ const healthCheck = async () => {
 healthCheck();
 
 // Test the connection
-pool.connect((err, client, release) => {
-  if (err) {
-    console.error('Error connecting to the database:', err.stack);
-  } else {
-    console.log('Successfully connected to Supabase PostgreSQL database');
-    release();
-  }
-});
+connectionManager.query('SELECT 1')
+  .then(() => console.log('Successfully connected to Supabase PostgreSQL database'))
+  .catch(err => console.error('Error testing connection:', err.message));
 
 // Test query function
 async function testQuery() {
   try {
-    const { rows } = await pool.query('SELECT NOW()');
+    const { rows } = await connectionManager.query('SELECT NOW()');
     console.log('Database time:', rows[0].now);
     return true;
   } catch (error) {
@@ -130,5 +176,5 @@ function formatDateString(date) {
   return `${year}-${month}-${day}`;
 }
 
-// Export pool and helpers
-module.exports = { pool, testQuery, formatDateString };
+// Export connection manager and helpers
+module.exports = { pool: connectionManager, testQuery, formatDateString };
