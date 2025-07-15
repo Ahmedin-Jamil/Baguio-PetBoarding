@@ -10,6 +10,10 @@
 .chatbot-container {
   width: 320px;
   height: 520px;
+  /* Ensure the container never exceeds the visible area (20px top & bottom margin) */
+  max-height: calc(100vh - 40px);
+  /* Fallback for very short screens – allow internal scroll instead of clipping */
+  overflow-y: auto;
   background: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
@@ -569,6 +573,17 @@
 }
 
 /* Responsive Design */
+/* Make sure medium-width phones (e.g. 360-600px) still show the full header */
+@media (max-width: 600px) {
+  .chatbot-container {
+    width: 100%;
+    height: 100%;
+    border-radius: 0;
+    box-shadow: none;
+    max-height: 100vh;
+  }
+}
+
 @media (max-width: 480px) {
   .chatbot-overlay {
     bottom: 0;
