@@ -890,21 +890,17 @@ const cacheMiddleware = async (req, res, next) => {
 app.use('/api/services', cacheMiddleware);
 app.use('/api/pets', cacheMiddleware);
 
-// Start server with available port
-let currentPort = parseInt(PORT, 10);
-
+// Start server with the PORT environment variable (critical for Render deployment)
 const startServer = () => {
-  app.listen(currentPort, () => {
-    console.log(`Server running on port ${currentPort}`);
-    console.log(`API URL: http://localhost:${currentPort}`);
+  const serverPort = parseInt(PORT, 10);
+  
+  app.listen(serverPort, '0.0.0.0', () => {
+    console.log(`Server running on port ${serverPort}`);
+    console.log(`API URL: http://localhost:${serverPort}`);
   }).on('error', (err) => {
-    if (err.code === 'EADDRINUSE') {
-      console.log(`Port ${currentPort} is busy, trying port ${currentPort + 1}`);
-      currentPort++;
-      startServer();
-    } else {
-      console.error('Server error:', err);
-    }
+    console.error('Server error:', err);
+    // Don't try alternative ports - Render expects us to use their PORT
+    process.exit(1);
   });
 };
 
