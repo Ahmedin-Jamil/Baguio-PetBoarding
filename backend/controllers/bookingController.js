@@ -279,11 +279,11 @@ async function createBooking(req, res) {
     // Check if the selected service can accept cats
     if (bookingData.pet_type === 'Cat') {
       // Some legacy records may not have an explicit `allows_cat` flag.
-      // Fall back to checking if a cat-specific price is defined (price_cat not null).
-      // For overnight services we treat cats the same as dogs, so allow them even if price_cat is null.
+      // Fall back to checking if a cat-specific price is defined (price_cat_small or price_cat_medium not null).
+      // For overnight/daycare services we treat cats the same as dogs, so allow them even if cat prices are null.
       const serviceAllowsCat = service.hasOwnProperty('allows_cat')
         ? Boolean(service.allows_cat)
-        : (service.price_cat !== null || service.service_type === 'overnight' || service.service_type === 'daycare');
+        : ((service.price_cat_small !== null || service.price_cat_medium !== null) || service.service_type === 'overnight' || service.service_type === 'daycare');
 
       if (!serviceAllowsCat) {
         return res.status(400).json({
