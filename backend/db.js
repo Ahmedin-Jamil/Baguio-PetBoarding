@@ -30,14 +30,14 @@ class ConnectionManager {
         rejectUnauthorized: false,
         sslmode: 'require'
       },
-      // Conservative settings
-      max: 2,
-      min: 0,
-      idleTimeoutMillis: 10000,
-      connectionTimeoutMillis: 5000,
+      // More lenient connection settings
+      max: 10,
+      min: 1,
+      idleTimeoutMillis: 30000,
+      connectionTimeoutMillis: 15000,
       allowExitOnIdle: true,
-      statement_timeout: 10000,
-      query_timeout: 10000
+      statement_timeout: 30000,
+      query_timeout: 30000
     };
 
     this.activePool = new Pool(poolConfig);
