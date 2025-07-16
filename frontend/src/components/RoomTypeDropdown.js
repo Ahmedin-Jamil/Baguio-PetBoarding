@@ -12,7 +12,6 @@ import premium2Img from '../assets/cat_premium.jpg';
 import premium3Img from '../assets/premium_enterence.jpg';
 import premium1Img from '../assets/play_area_2.jpg';
 import premium4Img from '../assets/executive.jpg';
-import delux1Img from '../assets/grooming1.jpg';
 import executiveImg from '../assets/executive1.jpg';
 import executive1Img from '../assets/food.jpg';
 import executive2Img from '../assets/execu.jpg';
@@ -25,7 +24,7 @@ const RoomTypeDropdown = () => {
 
   const roomData = {
     'Deluxe Room': {
-      images: [deluxeImg,deluxe2Img,deluxe1Img,delux1Img],
+      images: [deluxeImg,deluxe2Img,deluxe1Img],
     },
     'Premium Room': {
       images: [premium3Img, premiumImg,premium1Img,premium2Img],
