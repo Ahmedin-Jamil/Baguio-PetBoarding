@@ -115,7 +115,7 @@ const HomeNew = () => {
             { size: "Large", weight: "25-40 KG", price: "550" },
             { size: "X-Large", weight: "40+ KG", price: "750" },
             { size: "Cat - Small", weight: "1-9 KG", price: "500" },
-            { size: "Cat - Medium", weight: "9-25 KG", price: "600" }
+            { size: "Cat - Medium", weight: "9-25 KG", price: "650" }
           ],
           additionalFee: "Blowdry, Perfume & Powder (Optional)"
         },
@@ -129,7 +129,7 @@ const HomeNew = () => {
             { size: "Large", weight: "25-40 KG", price: "1000" },
             { size: "X-Large", weight: "40+ KG", price: "1500" },
             { size: "Cat - Small", weight: "1-9 KG", price: "950" },
-            { size: "Cat - Medium", weight: "9-25 KG", price: "1050" }
+            { size: "Cat - Medium", weight: "9-25 KG", price: "1100" }
           ],
           additionalFee: "St.Roche Premium Products."
         },
@@ -143,7 +143,7 @@ const HomeNew = () => {
             { size: "Large", weight: "25-40 KG", price: "800" },
             { size: "X-Large", weight: "40+ KG", price: "1000" },
             { size: "Cat - Small", weight: "1-9 KG", price: "700" },
-            { size: "Cat - Medium", weight: "9-25 KG", price: "800" }
+            { size: "Cat - Medium", weight: "9-25 KG", price: "850" }
           ],
           additionalFee: ""
         }
