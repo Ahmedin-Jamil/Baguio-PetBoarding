@@ -45,7 +45,8 @@ CREATE TABLE services (
     price_medium DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     price_large DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
     price_xlarge DECIMAL(10, 2) NOT NULL DEFAULT 0.00,
-    price_cat DECIMAL(10, 2),
+    price_cat_small DECIMAL(10, 2),
+    price_cat_medium DECIMAL(10, 2),
     max_slots INTEGER NOT NULL DEFAULT 0,
     duration_hours DECIMAL(4, 2),
     weight_small VARCHAR(20) DEFAULT '1-9 KG',
@@ -190,11 +191,11 @@ INSERT INTO service_categories (category_name, description) VALUES
 ('Grooming', 'Pet grooming services');
 
 -- Seed data for services
-INSERT INTO services (category_id, service_name, service_type, description, price_small, price_medium, price_large, price_xlarge, price_cat, max_slots, duration_hours) VALUES
-(1, 'Deluxe Room', 'overnight', 'Regular Room Gated with 24/7 Pet Sitter. Well Ventilated. (1) HOUR Access in Play Area Daily. Morning and Evening Outdoor Breaks. Inclusive of Regular Bed and Food Bowls + Treats.', 500.00, 650.00, 750.00, 1000.00, NULL, 10, 24.00),
-(1, 'Premium Room', 'overnight', 'Premium Gated Room with 24/7 Pet Sitter. Well Ventilated. (2) HOURS Access in our Play Area Daily. Morning and Evening Outdoor Breaks. Inclusive of Premium Bed and Ceramic Bowls + Treats.', 650.00, 800.00, 1000.00, 1500.00, NULL, 10, 24.00),
-(1, 'Executive Room', 'overnight', 'Premium Full Room with 24/7 Pet Sitter. Good for SOLO or Groups. Well Ventilated with AIR PURIFIER. (3) HOURS Access in our Play Area Daily. Morning and Evening Outdoor Breaks. Inclusive of Premium Bed and Ceramic Bowls + Treats.', 650.00, 850.00, 1000.00, 1500.00, NULL, 2, 24.00),
-(2, 'Pet Daycare', 'daycare', 'Our day care services provide your pet with supervised play, socialization, and exercise in a safe, fun environment. Minimum of (8) Hours.', 350.00, 450.00, 500.00, 600.00, NULL, 10, 8.00),
-(3, 'Premium Grooming', 'grooming', 'Complete grooming package including bath, haircut, styling, ear cleaning, teeth brushing. Considered as our most popular service. St.Roche Premium Products.', 750.00, 850.00, 1000.00, 1500.00, 950.00, 5, 2.00),
-(3, 'Basic Bath & Dry', 'grooming', 'A thorough cleansing bath with organic shampoo and conditioner. Perfect for pets who need a quick refresh. Blowdry, Perfume & Powder (Optional)', 350.00, 450.00, 550.00, 750.00, 500.00, 10, 1.00),
-(3, 'Special Care Package', 'grooming', 'Luxury treatment for pets with special needs. Basic bath and dry, paw pad treatment.', 550.00, 650.00, 800.00, 1000.00, 700.00, 5, 2.50);
+INSERT INTO services (category_id, service_name, service_type, description, price_small, price_medium, price_large, price_xlarge, price_cat_small, price_cat_medium, max_slots, duration_hours) VALUES
+(1, 'Deluxe Room', 'overnight', 'Regular Room Gated with 24/7 Pet Sitter. Well Ventilated. (1) HOUR Access in Play Area Daily. Morning and Evening Outdoor Breaks. Inclusive of Regular Bed and Food Bowls + Treats.', 500.00, 650.00, 750.00, 1000.00, NULL, NULL, 10, 24.00),
+(1, 'Premium Room', 'overnight', 'Premium Gated Room with 24/7 Pet Sitter. Well Ventilated. (2) HOURS Access in our Play Area Daily. Morning and Evening Outdoor Breaks. Inclusive of Premium Bed and Ceramic Bowls + Treats.', 650.00, 800.00, 1000.00, 1500.00, NULL, NULL, 10, 24.00),
+(1, 'Executive Room', 'overnight', 'Premium Full Room with 24/7 Pet Sitter. Good for SOLO or Groups. Well Ventilated with AIR PURIFIER. (3) HOURS Access in our Play Area Daily. Morning and Evening Outdoor Breaks. Inclusive of Premium Bed and Ceramic Bowls + Treats.', 650.00, 850.00, 1000.00, 1500.00, NULL, NULL, 2, 24.00),
+(2, 'Pet Daycare', 'daycare', 'Our day care services provide your pet with supervised play, socialization, and exercise in a safe, fun environment. Minimum of (8) Hours.', 350.00, 450.00, 500.00, 600.00, NULL, NULL, 10, 8.00),
+(3, 'Premium Grooming', 'grooming', 'Complete grooming package including bath, haircut, styling, ear cleaning, teeth brushing. Considered as our most popular service. St.Roche Premium Products.', 750.00, 850.00, 1000.00, 1500.00, 950.00, 1100.00, 5, 2.00),
+(3, 'Basic Bath & Dry', 'grooming', 'A thorough cleansing bath with organic shampoo and conditioner. Perfect for pets who need a quick refresh. Blowdry, Perfume & Powder (Optional)', 350.00, 450.00, 550.00, 750.00, 500.00, 650.00, 10, 1.00),
+(3, 'Special Care Package', 'grooming', 'Luxury treatment for pets with special needs. Basic bath and dry, paw pad treatment.', 550.00, 650.00, 800.00, 1000.00, 700.00, 850.00, 5, 2.50);
