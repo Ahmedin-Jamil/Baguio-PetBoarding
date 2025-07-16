@@ -43,44 +43,30 @@ const TOTAL_CAPACITY = {
  * @returns {Object} Availability data by service and room type
  */
 async function getRoomAvailability(date) {
+  console.log('Starting getRoomAvailability for date:', date);
   try {
     // Format date if it's not already formatted
     const formattedDate = formatDateString(date);
     
-    // Count bookings by service_id for overnight services
-    // We need to check if the requested date is occupied by any booking
-    // This includes the checkout date to prevent double booking
-    const { rows: overnightBookings } = await pool.query(
-      `SELECT b.service_id, COUNT(*) as count FROM bookings b
+    console.log('Querying overnight bookings...');
+    // Get all bookings in a single query
+    console.log('Executing optimized single query for all bookings...');
+    const { rows: allBookings } = await pool.query(
+      `SELECT s.service_type, b.service_id, COUNT(*) as count 
+       FROM bookings b
        JOIN services s ON b.service_id = s.service_id
-       WHERE s.service_type = 'overnight' 
-       AND b.start_date <= $1 AND b.end_date >= $1
+       WHERE b.start_date <= $1 AND b.end_date >= $1
        AND b.status::text NOT IN ('completed', 'cancelled', 'no-show')
-       GROUP BY b.service_id`,
+       GROUP BY s.service_type, b.service_id`,
       [formattedDate]
     );
     
-    // Count bookings for daycare - using the same overlap logic as overnight
-    const { rows: daycareBookingsRows } = await pool.query(
-      `SELECT COUNT(*) as count FROM bookings b
-       JOIN services s ON b.service_id = s.service_id
-       WHERE s.service_type = 'daycare' 
-       AND b.start_date <= $1 AND b.end_date >= $1 
-       AND b.status::text NOT IN ('completed', 'cancelled', 'no-show')`,
-      [formattedDate]
-    );
-    const daycareBookings = daycareBookingsRows;
+    console.log('All bookings query complete, results:', allBookings);
     
-    // Count grooming bookings by service_id - using the same overlap logic as other services
-    const { rows: groomingBookings } = await pool.query(
-      `SELECT b.service_id, COUNT(*) as count FROM bookings b
-       JOIN services s ON b.service_id = s.service_id
-       WHERE s.service_type = 'grooming' 
-       AND b.start_date <= $1 AND b.end_date >= $1
-       AND b.status::text NOT IN ('completed', 'cancelled', 'no-show')
-       GROUP BY b.service_id`,
-      [formattedDate]
-    );
+    // Separate bookings by service type
+    const overnightBookings = allBookings.filter(b => b.service_type === 'overnight');
+    const daycareBookings = allBookings.filter(b => b.service_type === 'daycare');
+    const groomingBookings = allBookings.filter(b => b.service_type === 'grooming');
     
     // Calculate availability
     const availability = {
