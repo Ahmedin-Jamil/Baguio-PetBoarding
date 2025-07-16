@@ -502,6 +502,9 @@ router.patch('/:id/status', async (req, res) => {
         break;
         
       case 'completed':
+        // When a booking is completed, we need to update its status
+        // This will remove it from the availability calculation since the query
+        // in services.js only counts 'pending' and 'confirmed' bookings
         query = `
           UPDATE bookings 
           SET 
