@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Button, Row, Col } from 'react-bootstrap';
-import { CheckCircle, Info, ChevronLeft, ChevronRight } from 'lucide-react';
+import { CheckCircle, Info, ChevronLeft, ChevronRight, AlertCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { FaPaw } from 'react-icons/fa';
 import './ServiceCard.css';
@@ -219,7 +219,7 @@ const ServiceCard = (props) => {
                 
                 <div className="pet-size-grid">
                   {option.pricing.map((price, index) => (
-                    <div key={index} className={`pet-size-item ${price.size && price.size.toLowerCase().includes('cat') ? 'cat-price' : ''}`}>
+                    <div key={index} className="pet-size-item">
                       <div className="pet-icon">
                         <FaPaw />
                       </div>
@@ -237,7 +237,14 @@ const ServiceCard = (props) => {
                 )}
               </div>
               
-              <div className="card-footer">
+              {/* Late fee warning */}
+{(['overnight','daycare','day care','grooming'].some(k => title.toLowerCase().includes(k))) && (
+  <div className="late-fee-warning mb-2 d-flex align-items-center" style={{background:'#fff3cd', padding:'8px', borderRadius:'4px'}}>
+    <AlertCircle size={14} className="me-2 text-warning" />
+    <span style={{fontSize:'0.9rem'}}>Late fee: ₱80/hour if exceeded by more than 1 hour</span>
+  </div>
+)}
+<div className="card-footer">
                 <div className="slots-info">
                   {slotCount} slots available
                 </div>
@@ -305,7 +312,7 @@ const ServiceCard = (props) => {
             
             <div className="pet-size-grid">
               {pricing.map((price, index) => (
-                <div key={index} className={`pet-size-item ${price.size && price.size.toLowerCase().includes('cat') ? 'cat-price' : ''}`}>
+                <div key={index} className="pet-size-item">
                   <div className="pet-icon">
                     <FaPaw />
                   </div>
@@ -337,7 +344,14 @@ const ServiceCard = (props) => {
             </div>
           )}
           
-          <div className="card-footer">
+          {/* Late fee warning */}
+{(['overnight','daycare','day care','grooming'].some(k => title.toLowerCase().includes(k))) && (
+  <div className="late-fee-warning mb-2 d-flex align-items-center" style={{background:'#fff3cd', padding:'8px', borderRadius:'4px'}}>
+    <AlertCircle size={14} className="me-2 text-warning" />
+    <span style={{fontSize:'0.9rem'}}>Late fee: ₱80/hour if exceeded by more than 1 hour</span>
+  </div>
+)}
+<div className="card-footer">
             <div className="slots-info">
               {availableSlots} slots available
             </div>

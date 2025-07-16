@@ -1001,7 +1001,7 @@ return (
                             <strong>Check-in/Check-out Time:</strong>
                             <div>
                               Check-in: {bookingData.selectedTime || '08:00'} | 
-                              Check-out: {bookingData.selectedTime || '08:00'}
+                              Check-out: 12:00 PM
                             </div>
                           </td>
                         </tr>

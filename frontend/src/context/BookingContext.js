@@ -1138,8 +1138,8 @@ function toCamelCase(obj) {
     
     // Count bookings that overlap with this date (excluding cancelled)
     return bookings.filter(booking => {
-      // Skip cancelled bookings
-      if (booking.status === 'cancelled') return false;
+      // Skip bookings that no longer occupy a slot
+      if (['cancelled','completed','no-show'].includes(booking.status)) return false;
       
       const startDate = new Date(booking.startDate);
       const endDate = booking.endDate ? new Date(booking.endDate) : startDate;
@@ -1165,8 +1165,8 @@ function toCamelCase(obj) {
     
     // Filter bookings by service type, room type, and date
     const filteredBookings = bookings.filter(booking => {
-      // Skip cancelled bookings
-      if (booking.status === 'cancelled') return false;
+      // Skip bookings that no longer occupy a slot
+      if (['cancelled','completed','no-show'].includes(booking.status)) return false;
       
       // Convert booking dates to Date objects if they're not already
       const startDate = booking.startDate instanceof Date 

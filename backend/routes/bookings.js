@@ -461,7 +461,7 @@ router.patch('/:id/status', async (req, res) => {
     const { status, notes, adminId, reason } = req.body;
     
     // Validate status
-    const validStatuses = ['pending', 'confirmed', 'completed', 'cancelled'];
+    const validStatuses = ['pending', 'confirmed', 'completed', 'complete', 'cancelled', 'no-show'];
     if (!validStatuses.includes(status)) {
       return res.status(400).json({ 
         success: false,
@@ -502,14 +502,29 @@ router.patch('/:id/status', async (req, res) => {
         break;
         
       case 'completed':
-        // When a booking is completed, we need to update its status
-        // This will remove it from the availability calculation since the query
-        // in services.js only counts 'pending' and 'confirmed' bookings
+      case 'complete':
         query = `
           UPDATE bookings 
           SET 
             status = 'completed'::booking_status,
             completed_at = CURRENT_TIMESTAMP,
+            -- If the booking was supposed to end in the future, trim it to today so the remaining nights become available
+            end_date = CASE 
+                        WHEN end_date > CURRENT_DATE THEN CURRENT_DATE 
+                        ELSE end_date 
+                      END,
+            admin_notes = $1
+          WHERE booking_id = $2
+        `;
+        params = [notes || null, id];
+        break;
+        
+      case 'no-show':
+        query = `
+          UPDATE bookings 
+          SET 
+            status = 'no-show'::booking_status,
+            cancelled_at = CURRENT_TIMESTAMP,
             admin_notes = $1
           WHERE booking_id = $2
         `;

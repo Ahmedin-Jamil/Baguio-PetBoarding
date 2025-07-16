@@ -240,12 +240,10 @@ function BookingDetailsModal({ booking, onClose, onHide }) {
                                 <span className="label">Check-out:</span>
                                 <span className="value">{formatDate(booking.checkOut || booking.endDate || booking.end_date)}</span>
                             </div>
-                            {(booking.endTime || booking.end_time) && (
-                                <div className="detail-row">
-                                    <span className="label">Check-out Time:</span>
-                                    <span className="value">{formatTime(booking.endTime || booking.end_time)}</span>
-                                </div>
-                            )}
+                            <div className="detail-row">
+                                <span className="label">Check-out Time:</span>
+                                <span className="value">{serviceType === 'overnight' ? '12:00 PM' : formatTime(booking.endTime || booking.end_time)}</span>
+                            </div>
                             {booking.createdAt && (
                                 <div className="detail-row">
                                     <span className="label">Booking Date:</span>

@@ -26,8 +26,10 @@ const BookingWidget = ({ onServiceSelect }) => {
     }
     
     if (serviceType === 'Overnight Stay') {
-      // For overnight stays, check-out time is the same as check-in time
-      setCalculatedCheckOutTime(checkInTime);
+      // For overnight stays, check-out time is always 12:00 PM regardless of check-in
+      const overnightCheckout = '12:00 PM';
+      setCalculatedCheckOutTime(overnightCheckout);
+      setCheckOutTime(overnightCheckout);
       return;
     }
     
@@ -437,17 +439,11 @@ const BookingWidget = ({ onServiceSelect }) => {
             </Col>
           )}
           
-          <Col md={12} className="mb-3">
-            <div className="late-fee-warning">
-              <AlertCircle size={14} className="warning-icon" />
-              <span>Late fee: ₱80/hour if exceeded by more than 1 hour</span>
-            </div>
-          </Col>
 
           {serviceType === 'Overnight Stay' && (
             <Col md={12} className="mb-3">
               <div className="emergency-extension-note text-center">
-                <span>For Emergency: If you need an emergency extension for overnight stay you can contact us through this number: <a href="tel:+639452763087" className="phone-link"><strong className="highlight-text">+63 945 276 3087</strong></a> and the extension fee is <strong className="highlight-text">+₱500/night</strong> for all rooms and sizes</span>
+                <span>For Emergency: If you need an emergency extension for overnight  <br></br> stay you can contact us through this number: <a href="tel:+639452763087" className="phone-link"><strong className="highlight-text">+63 945 276 3087</strong></a> </span>
               </div>
             </Col>
           )}
