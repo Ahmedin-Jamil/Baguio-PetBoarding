@@ -59,7 +59,8 @@ const WEIGHT_OPTIONS = [
   'Medium (9-25 KG)',
   'Large (25-40 KG)',
   'Extra-Large (40+ KG)',
-  'Cat'
+  'Cat - Small (1-9 KG)',
+  'Cat - Medium (9-25 KG)'
 ];
 
 // Helper: Normalize/display string -> canonical weight category value expected by backend
@@ -72,7 +73,9 @@ const getWeightCategoryValue = (displayCategory, petType = '') => {
   if (dc.includes('medium')) return 'Medium';
   if (/(x-?large|extra[-\s]?large|xlarge|xl)/.test(dc)) return 'X-Large';
   if (dc.includes('large')) return 'Large';
-  if (dc.includes('cat')) return 'Cat';
+  if (dc.includes('cat - small')) return 'Small';
+  if (dc.includes('cat - medium')) return 'Medium';
+  if (dc === 'cat') return 'Medium';
   return petType.toLowerCase() === 'cat' ? 'Cat' : 'Medium';
 };
 
@@ -169,14 +172,16 @@ const GroomingReservation = () => {
     if (field === 'type') {
       let newWeight = updatedPets[index].weightCategory;
 
-      // For cats: force weight category to 'Cat'
+      // For cats: keep existing cat-specific weight category or default to 'Cat - Small'
       if (value === 'Cat') {
+        const existingWeight = updatedPets[index].weightCategory;
+        const defaultWeight = existingWeight && existingWeight.startsWith('Cat') ? existingWeight : 'Cat - Small (1-9 KG)';
         updatedPets[index] = {
           ...updatedPets[index],
           type: value,
-          weightCategory: 'Cat'
+          weightCategory: defaultWeight
         };
-        newWeight = 'Cat';
+        newWeight = defaultWeight;
       } else {
         // For dogs: clear cat-only weight if previously set
         updatedPets[index] = {
@@ -233,12 +238,26 @@ const GroomingReservation = () => {
   // Helper to get available slots for a grooming service
   const getBackendAvailableSlots = (serviceName) => {
     if (!availability || !Array.isArray(availability)) return null;
-    const match = availability.find(s =>
-      s.service_type === 'grooming' &&
-      (s.service_name?.toLowerCase() === serviceName.toLowerCase() || s.category_name?.toLowerCase() === serviceName.toLowerCase())
+    const match = availability.find(
+      s =>
+        s.service_type === 'grooming' &&
+        (s.service_name?.toLowerCase() === serviceName.toLowerCase() ||
+          s.category_name?.toLowerCase() === serviceName.toLowerCase())
     );
-    return match ? match.available_slots : null;
+    if (!match) return null;
+
+    // Prefer explicit available_slots column
+    if (match.available_slots !== undefined && match.available_slots !== null) {
+      return match.available_slots;
+    }
+    // Fallback: derive from max_slots and booked_slots if present
+    if (match.max_slots !== undefined && match.booked_slots !== undefined) {
+      const remaining = Number(match.max_slots) - Number(match.booked_slots);
+      return remaining >= 0 ? remaining : 0;
+    }
+    return null;
   };
+
 
   const getAvailableSlotsForService = (serviceName, date) => {
     const backendSlots = getBackendAvailableSlots(serviceName);
@@ -503,10 +522,10 @@ const GroomingReservation = () => {
                           onChange={e => updatePetField(index, 'weightCategory', e.target.value)}
                           required
                           className="form-select"
-                          disabled={!pet.service || pet.type === 'Cat'}
+                          disabled={!pet.service}
                         >
                           <option value="">Select Weight</option>
-                          {WEIGHT_OPTIONS.filter(opt => (pet.type === 'Cat' ? opt === 'Cat' : opt !== 'Cat')).map(opt => {
+                          {WEIGHT_OPTIONS.filter(opt => (pet.type === 'Cat' ? opt.startsWith('Cat') : !opt.startsWith('Cat'))).map(opt => {
                             const priceVal = pet.service ? getGroomingPrice(pet.service, getWeightCategoryValue(opt, pet.type)) : null;
                             const displayLabel = priceVal ? `${opt} - ₱${priceVal}` : opt;
                             return (

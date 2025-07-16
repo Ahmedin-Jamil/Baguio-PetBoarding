@@ -114,7 +114,8 @@ const HomeNew = () => {
             { size: "Medium", weight: "9-25 KG", price: "450" },
             { size: "Large", weight: "25-40 KG", price: "550" },
             { size: "X-Large", weight: "40+ KG", price: "750" },
-            { size: "Cat", weight: <br></br>, price: "500" }
+            { size: "Cat - Small", weight: "1-9 KG", price: "500" },
+            { size: "Cat - Medium", weight: "9-25 KG", price: "600" }
           ],
           additionalFee: "Blowdry, Perfume & Powder (Optional)"
         },
@@ -127,12 +128,13 @@ const HomeNew = () => {
             { size: "Medium", weight: "9-25 KG", price: "850" },
             { size: "Large", weight: "25-40 KG", price: "1000" },
             { size: "X-Large", weight: "40+ KG", price: "1500" },
-            { size: "Cat", weight: <br></br>, price: "950" }
+            { size: "Cat - Small", weight: "1-9 KG", price: "950" },
+            { size: "Cat - Medium", weight: "9-25 KG", price: "1050" }
           ],
           additionalFee: "St.Roche Premium Products."
         },
         {
-          name: "Special Care Package",
+          name: "Special Grooming Package",
           image: "https://img.freepik.com/free-photo/haircuting-process-small-dog-sits-table-dog-with-professional_1157-48810.jpg?ga=GA1.1.175165772.1749993901&semt=ais_hybrid&w=740",
           description: "Luxury treatment for pets with special needs . Basic bath and dry, paw pad treatment.",
           pricing: [
@@ -140,7 +142,8 @@ const HomeNew = () => {
             { size: "Medium", weight: "9-25 KG", price: "650" },
             { size: "Large", weight: "25-40 KG", price: "800" },
             { size: "X-Large", weight: "40+ KG", price: "1000" },
-            { size: "Cat", weight: <br></br>, price: "700" }
+            { size: "Cat - Small", weight: "1-9 KG", price: "700" },
+            { size: "Cat - Medium", weight: "9-25 KG", price: "800" }
           ],
           additionalFee: ""
         }

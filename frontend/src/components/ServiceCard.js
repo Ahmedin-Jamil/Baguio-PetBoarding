@@ -219,7 +219,7 @@ const ServiceCard = (props) => {
                 
                 <div className="pet-size-grid">
                   {option.pricing.map((price, index) => (
-                    <div key={index} className="pet-size-item">
+                    <div key={index} className={`pet-size-item ${price.size && price.size.toLowerCase().includes('cat') ? 'cat-price' : ''}`}>
                       <div className="pet-icon">
                         <FaPaw />
                       </div>
@@ -305,7 +305,7 @@ const ServiceCard = (props) => {
             
             <div className="pet-size-grid">
               {pricing.map((price, index) => (
-                <div key={index} className="pet-size-item">
+                <div key={index} className={`pet-size-item ${price.size && price.size.toLowerCase().includes('cat') ? 'cat-price' : ''}`}>
                   <div className="pet-icon">
                     <FaPaw />
                   </div>

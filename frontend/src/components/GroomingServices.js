@@ -236,8 +236,19 @@ const GroomingServices = () => {
           if (row.service_type === 'grooming') {
             const key = row.service_name;
             if (!grouped[key]) grouped[key] = {};
-            grouped[key][row.size ? row.size.toLowerCase() : 'other'] = {
-              weight: row.size === 'S' ? '1-9 KG' : row.size === 'M' ? '9-25 KG' : row.size === 'L' ? '25-40 KG' : row.size === 'XL' ? '40+ KG' : 'Cat',
+            let sizeKey = row.size ? row.size.toLowerCase() : 'other';
+            // Map potential cat size codes returned by backend
+            if (row.size === 'CS' || row.size === 'CAT_SMALL') sizeKey = 'cat_small';
+            if (row.size === 'CM' || row.size === 'CAT_MEDIUM') sizeKey = 'cat_medium';
+            grouped[key][sizeKey] = {
+              weight:
+                row.size === 'S' ? '1-9 KG' :
+                row.size === 'M' ? '9-25 KG' :
+                row.size === 'L' ? '25-40 KG' :
+                row.size === 'XL' ? '40+ KG' :
+                row.size === 'CS' || row.size === 'CAT_SMALL' ? '1-9 KG' :
+                row.size === 'CM' || row.size === 'CAT_MEDIUM' ? '9-25 KG' :
+                'Cat',
               price: `Php ${row.base_price}`
             };
           }

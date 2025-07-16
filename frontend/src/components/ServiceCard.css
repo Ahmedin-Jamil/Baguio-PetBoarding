@@ -389,6 +389,12 @@
   font-size: 0.8rem;
 }
 
+/* Highlight rows for cat prices */
+.cat-price {
+  background-color: #fff8e6;
+  border-left: 3px solid #FFA500;
+}
+
 /* Services Include Section */
 .services-include {
   padding: 0 10px 15px;
